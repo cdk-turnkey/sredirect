@@ -19,21 +19,21 @@ export class Stack extends cdk.Stack {
       ...defaultBucketProps,
       versioned: true,
     });
-    // const cfFunction = new cloudfront.Function(this, "CFFunction", {
-    //   code: cloudfront.FunctionCode.fromInline(`
-    //     function handler(event) {
-    //       var response = {
-    //         statusCode: 302,
-    //         statusDescription: 'Found',
-    //         headers: {
-    //           "location": {
-    //             "value": "https://sites.google.com/view/douglas-naphas-org/home"
-    //           }
-    //         }
-    //       }
-    //       return response;
-    //     }`),
-    // });
+    const cfFunction = new cloudfront.Function(this, "CFF", {
+      code: cloudfront.FunctionCode.fromInline(`
+        function handler(event) {
+          var response = {
+            statusCode: 302,
+            statusDescription: 'Found',
+            headers: {
+              "location": {
+                "value": "https://sites.google.com/view/douglas-naphas-org/home"
+              }
+            }
+          }
+          return response;
+        }`),
+    });
     const distro = new cloudfront.Distribution(this, "Distro", {
       logBucket: new s3.Bucket(this, "DistroLoggingBucket", {
         ...defaultBucketProps,
@@ -44,12 +44,12 @@ export class Stack extends cdk.Stack {
         origin: new origins.S3Origin(bucket),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
-        // functionAssociations: [
-        //   {
-        //     function: cfFunction,
-        //     eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
-        //   },
-        // ],
+        functionAssociations: [
+          {
+            function: cfFunction,
+            eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
+          },
+        ],
       },
     });
     new cdk.CfnOutput(this, "BucketName", {
