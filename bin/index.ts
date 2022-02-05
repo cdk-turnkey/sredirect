@@ -2,7 +2,7 @@
 import { App } from "aws-cdk-lib";
 const AWS = require("aws-sdk");
 const crypto = require("crypto");
-import { AppStack, AppStackProps } from "../lib";
+import { AppStack, AppStackProps, Redirect } from "../lib";
 const stackname = require("@cdk-turnkey/stackname");
 
 (async () => {
@@ -67,12 +67,14 @@ const stackname = require("@cdk-turnkey/stackname");
     appProps[c.appParamName] = c.ssmParamValue;
   });
   // Param validation
+  let redirectsProvided: Array<Redirect>;
   if (appProps.redirects) {
     // Validate the prop, if provided
+    redirectsProvided = JSON.parse(appProps.redirects);
   }
   console.log("bin: Instantiating stack with redirects:");
   console.log(appProps.redirects);
   new AppStack(app, stackname("app"), {
-    redirects: appProps.redirects,
+    redirects: JSON.parse(appProps.redirects),
   });
 })();

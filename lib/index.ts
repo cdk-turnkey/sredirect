@@ -70,6 +70,8 @@ export class AppStack extends Stack {
     new CfnOutput(this, "DistributionDomainName", {
       value: distro.distributionDomainName,
     });
-    new CfnOutput(this, "redirects", { value: `${redirects}` });
+    new CfnOutput(this, "redirects", {
+      value: `${redirects} (${redirects.length})`,
+    });
   }
 }
