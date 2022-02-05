@@ -9,7 +9,7 @@ export interface AppStackProps extends StackProps {
 export class AppStack extends Stack {
   constructor(scope: App, id: string, props: AppStackProps = {}) {
     super(scope, id, props);
-    const { redirects } = props;
+    const { redirects = "not provided" } = props;
     const defaultBucketProps = {
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
