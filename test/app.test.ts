@@ -1,5 +1,4 @@
-import { expect as expectCDK, haveResource } from "@aws-cdk/assert";
-import * as cdk from "@aws-cdk/core";
+import * as cdk from "aws-cdk-lib";
 import * as Lib from "../lib";
 
 const OLD_ENV = process.env;
@@ -14,5 +13,5 @@ test("can instantiate app stack", () => {
   const app = new cdk.App();
   process.env.GITHUB_REPOSITORY = "githubuser/repo-name";
   process.env.GITHUB_REF = "refs/heads/master";
-  const stack = new Lib.Stack(app, "MyTestApp");
+  const stack = new Lib.AppStack(app, "MyTestApp");
 });

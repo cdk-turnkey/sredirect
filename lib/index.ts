@@ -1,16 +1,15 @@
-import * as cdk from "@aws-cdk/core";
-import * as s3 from "@aws-cdk/aws-s3";
-import { RemovalPolicy } from "@aws-cdk/core";
-import * as cloudfront from "@aws-cdk/aws-cloudfront";
-import * as origins from "@aws-cdk/aws-cloudfront-origins";
+import { App, Stack, StackProps, RemovalPolicy, CfnOutput } from "aws-cdk-lib";
+import { aws_s3 as s3 } from "aws-cdk-lib";
+import { aws_cloudfront as cloudfront } from "aws-cdk-lib";
+import { aws_cloudfront_origins as origins } from "aws-cdk-lib";
 
-export interface StackProps extends cdk.StackProps {
-  customProp?: string;
+export interface AppStackProps extends StackProps {
+  redirects?: string;
 }
-export class Stack extends cdk.Stack {
-  constructor(scope: cdk.App, id: string, props: StackProps = {}) {
+export class AppStack extends Stack {
+  constructor(scope: App, id: string, props: AppStackProps = {}) {
     super(scope, id, props);
-    const { customProp } = props;
+    const { redirects } = props;
     const defaultBucketProps = {
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
@@ -52,11 +51,12 @@ export class Stack extends cdk.Stack {
         ],
       },
     });
-    new cdk.CfnOutput(this, "BucketName", {
+    new CfnOutput(this, "BucketName", {
       value: bucket.bucketName,
     });
-    new cdk.CfnOutput(this, "DistributionDomainName", {
+    new CfnOutput(this, "DistributionDomainName", {
       value: distro.distributionDomainName,
     });
+    new CfnOutput(this, "redirects", { value: redirects });
   }
 }

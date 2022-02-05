@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-import * as cdk from "@aws-cdk/core";
+import { App } from "aws-cdk-lib";
 const AWS = require("aws-sdk");
 const crypto = require("crypto");
-import { Stack, StackProps } from "../lib";
+import { AppStack, AppStackProps } from "../lib";
 const stackname = require("@cdk-turnkey/stackname");
 
 (async () => {
-  const app = new cdk.App();
+  const app = new App();
   class ConfigParam {
     appParamName: string;
     ssmParamName = () => stackname(this.appParamName);
@@ -77,7 +77,7 @@ const stackname = require("@cdk-turnkey/stackname");
   console.log("and zoneId:");
   console.log(appProps.zoneId);
   // TODO: print a hash of the IDP app secrets
-  new Stack(app, stackname("app"), {
-    ...(appProps as StackProps),
+  new AppStack(app, stackname("app"), {
+    ...(appProps as AppStackProps),
   });
 })();
