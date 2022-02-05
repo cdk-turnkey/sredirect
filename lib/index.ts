@@ -3,13 +3,26 @@ import { aws_s3 as s3 } from "aws-cdk-lib";
 import { aws_cloudfront as cloudfront } from "aws-cdk-lib";
 import { aws_cloudfront_origins as origins } from "aws-cdk-lib";
 
+export class Redirect {
+  constructor(from: string, to: string) {
+    this.from = from;
+    this.to = to;
+  }
+  from: string;
+  to: string;
+  toString(): string {
+    return `${this.from} -> ${this.to}`;
+  }
+}
+
 export interface AppStackProps extends StackProps {
-  redirects?: string;
+  redirects?: Redirect[];
 }
 export class AppStack extends Stack {
   constructor(scope: App, id: string, props: AppStackProps = {}) {
     super(scope, id, props);
-    const { redirects = "not provided" } = props;
+    // const { redirects: Array<Redirect> = [] } = props;
+    const redirects: Array<Redirect> = props.redirects || [];
     const defaultBucketProps = {
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
@@ -57,6 +70,6 @@ export class AppStack extends Stack {
     new CfnOutput(this, "DistributionDomainName", {
       value: distro.distributionDomainName,
     });
-    new CfnOutput(this, "redirects", { value: redirects });
+    new CfnOutput(this, "redirects", { value: `${redirects}` });
   }
 }
