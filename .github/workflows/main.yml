@@ -34,16 +34,6 @@ jobs:
         run: |
           npm run build
 
-      - name: Install content
-        working-directory: content
-        run: |
-          npm install
-
-      - name: Test content
-        working-directory: content
-        run: |
-          npm test
-
       - name: Test (top-level)
         run: |
           npm test
