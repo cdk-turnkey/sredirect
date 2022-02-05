@@ -66,11 +66,15 @@ const stackname = require("@cdk-turnkey/stackname");
   configParams.forEach((c) => {
     appProps[c.appParamName] = c.ssmParamValue;
   });
+  console.log("typeof appProps.redirects:");
+  console.log(typeof appProps.redirects);
   // Param validation
   let redirectsProvided: Array<Redirect>;
   if (appProps.redirects) {
-    // Validate the prop, if provided
+    // if we get past this block, appProps.redirects is safe to use as a prop
+    // for AppStack
     redirectsProvided = JSON.parse(appProps.redirects);
+
   }
   console.log("bin: Instantiating stack with redirects:");
   console.log(appProps.redirects);
