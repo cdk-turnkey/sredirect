@@ -96,6 +96,8 @@ const stackname = require("@cdk-turnkey/stackname");
         console.error(
           `bad redirect type, must be "${RedirectType.FOUND}" or "${RedirectType.HTTP_ORIGIN}"`
         );
+        console.error(e);
+        process.exit(6);
       }
     }
     // maybe require they all be under the same 2nd level domain name?
