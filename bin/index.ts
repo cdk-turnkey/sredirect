@@ -29,7 +29,7 @@ const stackname = require("@cdk-turnkey/stackname");
     WithDecryption: true,
   };
   AWS.config.update({ region: process.env.AWS_DEFAULT_REGION });
-  const ssm = new AWS.SSM({apiVersion: '2014-11-06'});
+  const ssm = new AWS.SSM({ apiVersion: "2014-11-06" });
   let ssmResponse: any;
   ssmResponse = await new Promise((resolve, reject) => {
     ssm.getParameters(ssmParams, (err: any, data: any) => {
@@ -117,9 +117,11 @@ const stackname = require("@cdk-turnkey/stackname");
         throw new Error("input length < 1");
       }
     };
-
-    assertNonEmptyRedirectArray(parsed);
-    return parsed; // it's an array of Redirects, ish
+    const parsedRedirects = parsed.map(
+      (e) => new Redirect(e.from, e.to, e.type)
+    );
+    assertNonEmptyRedirectArray(parsedRedirects);
+    return parsedRedirects; // it's an array of Redirects, ish
   })(appProps.redirects);
 
   console.log("bin: Instantiating stack with redirects:");
