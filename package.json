@@ -1,9 +1,6 @@
 {
-  "name": "madliberation",
+  "name": "sredirect",
   "version": "0.1.0",
-  "bin": {
-    "madliberation": "bin/madliberation.js"
-  },
   "repository": {
     "type": "git",
     "url": "git://github.com/cdk-turnkey/brian-liberation"
