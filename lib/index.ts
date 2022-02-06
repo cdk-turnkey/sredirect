@@ -4,7 +4,7 @@ import { aws_cloudfront as cloudfront } from "aws-cdk-lib";
 import { aws_cloudfront_origins as origins } from "aws-cdk-lib";
 import { aws_certificatemanager as certificatemanager } from "aws-cdk-lib";
 
-export enum RedirectType {
+export const enum RedirectType {
   FOUND = "Found", // Send HTTP 302 and redirect to the to-value
   HTTP_ORIGIN = "HTTP Origin", // Set to-value as a CloudFront HTTP Origin, caching disabled,
 }
