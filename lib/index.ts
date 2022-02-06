@@ -2,6 +2,12 @@ import { App, Stack, StackProps, RemovalPolicy, CfnOutput } from "aws-cdk-lib";
 import { aws_s3 as s3 } from "aws-cdk-lib";
 import { aws_cloudfront as cloudfront } from "aws-cdk-lib";
 import { aws_cloudfront_origins as origins } from "aws-cdk-lib";
+import { aws_certificatemanager as certificatemanager } from "aws-cdk-lib";
+
+export enum RedirectType {
+  FOUND = "Send HTTP 302 and redirect to the to-value",
+  HTTP_ORIGIN = "Set to-value as a CloudFront HTTP Origin, caching disabled",
+}
 
 export class Redirect {
   constructor(from: string, to: string) {
@@ -10,19 +16,21 @@ export class Redirect {
   }
   from: string;
   to: string;
+  type: RedirectType;
   toString(): string {
-    return `${this.from} -> ${this.to}`;
+    return `${this.from} -> ${this.to} (${this.type})`;
   }
 }
 
 export interface AppStackProps extends StackProps {
-  redirects?: Redirect[];
+  redirects?: [Redirect, ...Redirect[]];
 }
 export class AppStack extends Stack {
   constructor(scope: App, id: string, props: AppStackProps = {}) {
     super(scope, id, props);
     // const { redirects: Array<Redirect> = [] } = props;
     const redirects: Array<Redirect> = props.redirects || [];
+
     const defaultBucketProps = {
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,

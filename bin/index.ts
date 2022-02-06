@@ -2,7 +2,7 @@
 import { App } from "aws-cdk-lib";
 const AWS = require("aws-sdk");
 const crypto = require("crypto");
-import { AppStack, AppStackProps, Redirect } from "../lib";
+import { AppStack, AppStackProps, Redirect, RedirectType } from "../lib";
 const stackname = require("@cdk-turnkey/stackname");
 
 (async () => {
@@ -67,22 +67,56 @@ const stackname = require("@cdk-turnkey/stackname");
     appProps[c.appParamName] = c.ssmParamValue;
   });
   // Param validation
-  const redirects: Redirect[] | undefined = ((r) => {
+  const redirects: [Redirect, ...Redirect[]] = ((
+    r
+  ): [Redirect, ...Redirect[]] => {
     if (!r) {
-      return undefined;
+      console.error("no redirects provided, failing");
+      process.exit(4);
     }
     const parsed = JSON.parse(r);
     if (!Array.isArray(parsed)) {
       console.error("redirects is not an array, failing");
       process.exit(2);
     }
+    if (parsed.length < 1) {
+      console.error("need at least one redirect");
+      process.exit(5);
+    }
     for (const e of parsed) {
-      if (!e["from"] || !e["to"]) {
-        console.error("bad redirect");
+      if (!e["from"] || !e["to"] || !e["type"]) {
+        console.error("bad redirect, need a from and a to and a type");
         console.error(e);
         process.exit(3);
       }
+      if (
+        e.type !== RedirectType.FOUND &&
+        e.type !== RedirectType.HTTP_ORIGIN
+      ) {
+        console.error(
+          `bad redirect type, must be "${RedirectType.FOUND}" or "${RedirectType.HTTP_ORIGIN}"`
+        );
+      }
     }
+    // maybe require they all be under the same 2nd level domain name?
+    // probably not, no immediate reason for that rule
+    // or maybe I need one cert, possibly with a bunch of second-level domain
+    // names, one distro, and a bunch of rules/behaviors routing based on the
+    // domain
+    const assertNonEmptyRedirectArray: (
+      input: unknown
+    ) => asserts input is [Redirect, ...Redirect[]] = (
+      input: any
+    ): asserts input is [Redirect, ...Redirect[]] => {
+      if (!Array.isArray(input)) {
+        throw new Error("input is not an array");
+      }
+      if (input.length < 1) {
+        throw new Error("input length < 1");
+      }
+    };
+
+    assertNonEmptyRedirectArray(parsed);
     return parsed; // it's an array of Redirects, ish
   })(appProps.redirects);
 
