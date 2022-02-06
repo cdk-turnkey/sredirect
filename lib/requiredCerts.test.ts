@@ -1,5 +1,6 @@
 import { requiredCerts } from "./requiredCerts";
-import { Redirect, RedirectType } from "./index";
+import { Redirect } from "./index";
+import { RedirectType } from "./RedirectType";
 
 describe("requiredCerts", () => {
   test.each([

@@ -3,11 +3,12 @@ import { aws_s3 as s3 } from "aws-cdk-lib";
 import { aws_cloudfront as cloudfront } from "aws-cdk-lib";
 import { aws_cloudfront_origins as origins } from "aws-cdk-lib";
 import { aws_certificatemanager as certificatemanager } from "aws-cdk-lib";
+import { RedirectType } from "./RedirectType";
 
-export const enum RedirectType {
-  FOUND = "Found", // Send HTTP 302 and redirect to the to-value
-  HTTP_ORIGIN = "HTTP Origin", // Set to-value as a CloudFront HTTP Origin, caching disabled,
-}
+// export const enum RedirectType {
+//   FOUND = "Found", // Send HTTP 302 and redirect to the to-value
+//   HTTP_ORIGIN = "HTTP Origin", // Set to-value as a CloudFront HTTP Origin, caching disabled,
+// }
 
 export class Redirect {
   constructor(from: string, to: string, type: RedirectType) {

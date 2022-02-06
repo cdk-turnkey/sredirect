@@ -2,7 +2,8 @@
 import { App } from "aws-cdk-lib";
 const AWS = require("aws-sdk");
 const crypto = require("crypto");
-import { AppStack, AppStackProps, Redirect, RedirectType } from "../lib";
+import { AppStack, AppStackProps, Redirect } from "../lib";
+import { RedirectType } from "../lib/RedirectType";
 const stackname = require("@cdk-turnkey/stackname");
 
 (async () => {
