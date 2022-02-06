@@ -6,13 +6,14 @@ import { aws_certificatemanager as certificatemanager } from "aws-cdk-lib";
 
 export enum RedirectType {
   FOUND = "Found", // Send HTTP 302 and redirect to the to-value
-  HTTP_ORIGIN = "HTTP Origin" // Set to-value as a CloudFront HTTP Origin, caching disabled,
+  HTTP_ORIGIN = "HTTP Origin", // Set to-value as a CloudFront HTTP Origin, caching disabled,
 }
 
 export class Redirect {
-  constructor(from: string, to: string) {
+  constructor(from: string, to: string, type: RedirectType) {
     this.from = from;
     this.to = to;
+    this.type = type;
   }
   from: string;
   to: string;
@@ -30,6 +31,13 @@ export class AppStack extends Stack {
     super(scope, id, props);
     // const { redirects: Array<Redirect> = [] } = props;
     const redirects: Array<Redirect> = props.redirects || [];
+
+    // cert
+    let subjectAlternativeNames;
+
+    // I need to do some computation on redirects
+    // In Namecheap I can only get certs for *.abc.com and abc.com, not
+    // xyz.abc.com
 
     const defaultBucketProps = {
       removalPolicy: RemovalPolicy.DESTROY,
