@@ -93,6 +93,88 @@ describe("requiredCerts", () => {
         "*.zzz.com",
       ],
     },
+    {
+      redirects: [
+        new Redirect(
+          "test1.bbb.org",
+          "https://example.com",
+          RedirectType.FOUND
+        ),
+        new Redirect(
+          "test1.aaa.org",
+          "https://example.com",
+          RedirectType.FOUND
+        ),
+        new Redirect("r.zzz.com", "https://example.com", RedirectType.FOUND),
+        new Redirect(
+          "test1.douglas-naphas.org",
+          "https://example.com",
+          RedirectType.FOUND
+        ),
+        new Redirect(
+          "douglas-naphas.org",
+          "https://example.com",
+          RedirectType.FOUND
+        ),
+        new Redirect(
+          "abc.def.ghi.com",
+          "https://example.com",
+          RedirectType.FOUND
+        ),
+        new Redirect("zzz.com", "https://example.com", RedirectType.FOUND),
+      ],
+      expected: [
+        "douglas-naphas.org",
+        "zzz.com",
+        "*.aaa.org",
+        "*.bbb.org",
+        "*.douglas-naphas.org",
+        "*.ghi.com",
+        "*.zzz.com",
+      ],
+    },
+    {
+      redirects: [
+        new Redirect(
+          "test1.bbb.org",
+          "https://example.com",
+          RedirectType.FOUND
+        ),
+        new Redirect(
+          "test1.aaa.org",
+          "https://example.com",
+          RedirectType.FOUND
+        ),
+        new Redirect("ghi.com", "https://example.com", RedirectType.FOUND),
+        new Redirect("r.zzz.com", "https://example.com", RedirectType.FOUND),
+        new Redirect(
+          "test1.douglas-naphas.org",
+          "https://example.com",
+          RedirectType.FOUND
+        ),
+        new Redirect(
+          "douglas-naphas.org",
+          "https://example.com",
+          RedirectType.FOUND
+        ),
+        new Redirect(
+          "abc.def.ghi.com",
+          "https://example.com",
+          RedirectType.FOUND
+        ),
+        new Redirect("zzz.com", "https://example.com", RedirectType.FOUND),
+      ],
+      expected: [
+        "douglas-naphas.org",
+        "ghi.com",
+        "zzz.com",
+        "*.aaa.org",
+        "*.bbb.org",
+        "*.douglas-naphas.org",
+        "*.ghi.com",
+        "*.zzz.com",
+      ],
+    },
   ])("requiredCerts($redirects) -> $expected", ({ redirects, expected }) => {
     const assertNonEmptyRedirectArray: (
       input: unknown
