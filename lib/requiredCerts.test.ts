@@ -29,6 +29,36 @@ describe("requiredCerts", () => {
       ],
       expected: ["douglas-naphas.org", "*.douglas-naphas.org"],
     },
+    {
+      redirects: [
+        new Redirect(
+          "test1.bbb.org",
+          "https://example.com",
+          RedirectType.FOUND
+        ),
+        new Redirect(
+          "test1.aaa.org",
+          "https://example.com",
+          RedirectType.FOUND
+        ),
+        new Redirect(
+          "test1.douglas-naphas.org",
+          "https://example.com",
+          RedirectType.FOUND
+        ),
+        new Redirect(
+          "douglas-naphas.org",
+          "https://example.com",
+          RedirectType.FOUND
+        ),
+      ],
+      expected: [
+        "douglas-naphas.org",
+        "*.aaa.org",
+        "*.bbb.org",
+        "*.douglas-naphas.org",
+      ],
+    },
   ])("requiredCerts($redirects) -> $expected", ({ redirects, expected }) => {
     const assertNonEmptyRedirectArray: (
       input: unknown

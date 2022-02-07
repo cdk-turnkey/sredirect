@@ -11,16 +11,20 @@ export function requiredCerts(redirects: [Redirect, ...Redirect[]]) {
     }
     return prev.add(sld);
   }, new Set());
-  return Array.from(slds).sort((a, b) => {
-    function assertString(input: unknown): asserts input is string {
-      assert(typeof input === "string");
-    }
-    assertString(a);
-    if (a.match(/[*]/)) {
-      return 1;
-    }
-    return -1;
-  });
+  return Array.from(slds)
+    .sort()
+    .reverse()
+    .sort((a, b) => {
+      function assertString(input: unknown): asserts input is string {
+        assert(typeof input === "string");
+      }
+      assertString(a);
+      assertString(b);
+      if (a.match(/[*]/) && !b.match(/[*]/)) {
+        return 1;
+      }
+      return -1;
+    });
 }
 
 // can you get certs where you include the trailing '.' for the root domain?
