@@ -127,7 +127,7 @@ export class AppStack extends Stack {
     domainNames.forEach((domainName, index) => {
       new route53.ARecord(this, `ARecord${index}`, {
         recordName: domainName,
-        zone: hostedZones[domainName].replace(/^[*][.]/, ""),
+        zone: hostedZones[domainName.replace(/^[*][.]/, "")],
         target: route53.RecordTarget.fromAlias(
           new targets.CloudFrontTarget(distro)
         ),
