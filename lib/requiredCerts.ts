@@ -23,7 +23,7 @@ export function requiredCerts(redirects: [Redirect, ...Redirect[]]) {
       if (a.match(/[*]/) && !b.match(/[*]/)) {
         return 1;
       }
-      return -1;
+      return a < b ? -1 : 0;
     });
 }
 
