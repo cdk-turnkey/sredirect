@@ -4,6 +4,7 @@ import { aws_cloudfront as cloudfront } from "aws-cdk-lib";
 import { aws_cloudfront_origins as origins } from "aws-cdk-lib";
 import { aws_certificatemanager as certificatemanager } from "aws-cdk-lib";
 import { RedirectType } from "./RedirectType";
+import { requiredCerts } from "./requiredCerts";
 
 // export const enum RedirectType {
 //   FOUND = "Found", // Send HTTP 302 and redirect to the to-value
@@ -25,13 +26,13 @@ export class Redirect {
 }
 
 export interface AppStackProps extends StackProps {
-  redirects?: [Redirect, ...Redirect[]];
+  redirects: [Redirect, ...Redirect[]];
 }
 export class AppStack extends Stack {
-  constructor(scope: App, id: string, props: AppStackProps = {}) {
+  constructor(scope: App, id: string, props: AppStackProps) {
     super(scope, id, props);
     // const { redirects: Array<Redirect> = [] } = props;
-    const redirects: Array<Redirect> = props.redirects || [];
+    const redirects: [Redirect, ...Redirect[]] = props.redirects;
 
     // cert
     let subjectAlternativeNames;
@@ -39,6 +40,28 @@ export class AppStack extends Stack {
     // I need to do some computation on redirects
     // In Namecheap I can only get certs for *.abc.com and abc.com, not
     // xyz.abc.com
+    const domainNames = requiredCerts(redirects);
+    const assertNonEmptyStringArray: (
+      input: unknown
+    ) => asserts input is [string, ...string[]] = (
+      input: any
+    ): asserts input is [string, ...string[]] => {
+      if (!Array.isArray(input)) {
+        throw new Error("input is not an array");
+      }
+      if (input.length < 1) {
+        throw new Error("input length < 1");
+      }
+    };
+    assertNonEmptyStringArray(domainNames);
+    if (domainNames.length > 1) {
+      subjectAlternativeNames = domainNames.slice(1);
+    }
+    const certificate = new certificatemanager.Certificate(this, "Cert", {
+      domainName: domainNames[0],
+      subjectAlternativeNames,
+      validation: certificatemanager.CertificateValidation.fromDns(),
+    });
 
     const defaultBucketProps = {
       removalPolicy: RemovalPolicy.DESTROY,
@@ -80,7 +103,10 @@ export class AppStack extends Stack {
           },
         ],
       },
+      domainNames,
+      certificate,
     });
+    distro.node.addDependency(certificate);
     new CfnOutput(this, "BucketName", {
       value: bucket.bucketName,
     });

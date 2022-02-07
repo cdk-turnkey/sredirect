@@ -1,7 +1,7 @@
 import { assert } from "console";
 import { Redirect } from "./index";
 import { RedirectType } from "./RedirectType";
-export function requiredCerts(redirects: [Redirect, ...Redirect[]]) {
+export function requiredCerts(redirects: [Redirect, ...Redirect[]])  {
   const slds = redirects.reduce((prev, curr) => {
     const SECOND_LEVEL_DOMAIN_NAME_POSITION = -2;
     const names = curr.from.split(".").filter((name) => name !== "");
