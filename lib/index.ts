@@ -3,6 +3,8 @@ import { aws_s3 as s3 } from "aws-cdk-lib";
 import { aws_cloudfront as cloudfront } from "aws-cdk-lib";
 import { aws_cloudfront_origins as origins } from "aws-cdk-lib";
 import { aws_certificatemanager as certificatemanager } from "aws-cdk-lib";
+import { aws_route53_targets as targets } from "aws-cdk-lib";
+import { aws_route53 as route53 } from "aws-cdk-lib";
 import { RedirectType } from "./RedirectType";
 import { requiredCerts } from "./requiredCerts";
 
@@ -107,6 +109,27 @@ export class AppStack extends Stack {
       certificate,
     });
     distro.node.addDependency(certificate);
+
+    // const hostedZone = new route53.HostedZone(this, "HostedZone", )
+    const hostedZones: any = {};
+    domainNames
+      .filter((domainName) => !domainName.match(/[*]/))
+      .forEach((zoneName, index) => {
+        const hostedZone = new route53.HostedZone(this, `HostedZone${index}`, {
+          zoneName,
+        });
+        hostedZones[zoneName] = hostedZone;
+      });
+    domainNames.forEach((domainName, index) => {
+      new route53.ARecord(this, `ARecord${index}`, {
+        recordName: domainName,
+        zone: hostedZones[domainName],
+        target: route53.RecordTarget.fromAlias(
+          new targets.CloudFrontTarget(distro)
+        ),
+      });
+    });
+
     new CfnOutput(this, "BucketName", {
       value: bucket.bucketName,
     });
