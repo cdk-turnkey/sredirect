@@ -6,14 +6,10 @@ export function requiredCerts(redirects: [Redirect, ...Redirect[]]) {
     const SECOND_LEVEL_DOMAIN_NAME_POSITION = -2;
     const names = curr.from.split(".").filter((name) => name !== "");
     const sld = names.slice(SECOND_LEVEL_DOMAIN_NAME_POSITION).join(".");
-    if (names.length <= 2) {
-      return prev.add(sld);
+    if (names.length > 2) {
+      return prev.add(`*.${sld}`);
     }
-    return prev.add(`*.${sld}`);
-    // if (names.length > 2) {
-    //   return prev.add(`*.${sld}`);
-    // }
-    // return prev.add(sld);
+    return prev.add(sld);
   }, new Set());
   return Array.from(slds).sort((a, b) => {
     function assertString(input: unknown): asserts input is string {
