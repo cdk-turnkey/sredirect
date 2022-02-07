@@ -115,7 +115,6 @@ export class AppStack extends Stack {
     domainNames
       .filter((domainName) => !domainName.match(/[*]/))
       .forEach((zoneName, index) => {
-        console.log(zoneName);
         const hostedZone = new route53.PublicHostedZone(
           this,
           `HostedZone${index}`,
@@ -128,7 +127,7 @@ export class AppStack extends Stack {
     domainNames.forEach((domainName, index) => {
       new route53.ARecord(this, `ARecord${index}`, {
         recordName: domainName,
-        zone: hostedZones[domainName],
+        zone: hostedZones[domainName].replace(/^[*][.]/, ""),
         target: route53.RecordTarget.fromAlias(
           new targets.CloudFrontTarget(distro)
         ),
