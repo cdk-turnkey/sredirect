@@ -115,9 +115,14 @@ export class AppStack extends Stack {
     domainNames
       .filter((domainName) => !domainName.match(/[*]/))
       .forEach((zoneName, index) => {
-        const hostedZone = new route53.HostedZone(this, `HostedZone${index}`, {
-          zoneName,
-        });
+        console.log(zoneName);
+        const hostedZone = new route53.PublicHostedZone(
+          this,
+          `HostedZone${index}`,
+          {
+            zoneName,
+          }
+        );
         hostedZones[zoneName] = hostedZone;
       });
     domainNames.forEach((domainName, index) => {
