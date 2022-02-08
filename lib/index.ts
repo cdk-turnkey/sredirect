@@ -8,11 +8,6 @@ import { aws_route53 as route53 } from "aws-cdk-lib";
 import { RedirectType } from "./RedirectType";
 import { requiredCerts } from "./requiredCerts";
 
-// export const enum RedirectType {
-//   FOUND = "Found", // Send HTTP 302 and redirect to the to-value
-//   HTTP_ORIGIN = "HTTP Origin", // Set to-value as a CloudFront HTTP Origin, caching disabled,
-// }
-
 export class Redirect {
   constructor(from: string, to: string, type: RedirectType) {
     this.from = from;
@@ -33,10 +28,8 @@ export interface AppStackProps extends StackProps {
 export class AppStack extends Stack {
   constructor(scope: App, id: string, props: AppStackProps) {
     super(scope, id, props);
-    // const { redirects: Array<Redirect> = [] } = props;
     const redirects: [Redirect, ...Redirect[]] = props.redirects;
 
-    // cert
     let subjectAlternativeNames;
 
     // I need to do some computation on redirects
@@ -110,7 +103,6 @@ export class AppStack extends Stack {
     });
     distro.node.addDependency(certificate);
 
-    // const hostedZone = new route53.HostedZone(this, "HostedZone", )
     const hostedZones: any = {};
     domainNames
       .filter((domainName) => !domainName.match(/[*]/))
