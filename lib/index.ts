@@ -76,21 +76,26 @@ export class AppStack extends Stack {
     const cfFunction = new cloudfront.Function(this, "CFF", {
       code: cloudfront.FunctionCode.fromInline(`
         function handler(event) {
-          var request = event.request;
-          request.uri = "/view/douglas-naphas-org/home";
-          return request;
+          var response = {
+            statusCode: 302,
+            statusDescription: 'Found',
+            headers: {
+              "location": {
+                "value": "https://sites.google.com/view/douglas-naphas-org/home"
+              }
+            }
+          }
+          return response;
         }`),
-    });
-    const httpOrigin = new origins.HttpOrigin("sites.google.com", {
-      protocolPolicy: cloudfront.OriginProtocolPolicy.HTTPS_ONLY,
     });
     const distro = new cloudfront.Distribution(this, "Distro", {
       logBucket: new s3.Bucket(this, "DistroLoggingBucket", {
         ...defaultBucketProps,
       }),
       logFilePrefix: "distribution-access-logs/",
+      defaultRootObject: "index.html",
       defaultBehavior: {
-        origin: httpOrigin,
+        origin: new origins.S3Origin(bucket),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
         functionAssociations: [
@@ -99,16 +104,13 @@ export class AppStack extends Stack {
             eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
           },
         ],
-        originRequestPolicy: new cloudfront.OriginRequestPolicy(this, "ORP", {
-          cookieBehavior: cloudfront.OriginRequestCookieBehavior.all(),
-          queryStringBehavior:
-            cloudfront.OriginRequestQueryStringBehavior.all(),
-        }),
       },
       domainNames,
       certificate,
     });
     distro.node.addDependency(certificate);
+
+    // const hostedZone = new route53.HostedZone(this, "HostedZone", )
     const hostedZones: any = {};
     domainNames
       .filter((domainName) => !domainName.match(/[*]/))
