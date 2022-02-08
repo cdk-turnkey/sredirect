@@ -2,5 +2,4 @@
 // https://stackoverflow.com/a/62564232/2260686
 export enum RedirectType {
   FOUND = "Found", // Send HTTP 302 and redirect to the to-value
-  HTTP_ORIGIN = "HTTP Origin", // Set to-value as a CloudFront HTTP Origin, caching disabled,
 }

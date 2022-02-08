@@ -90,13 +90,8 @@ const stackname = require("@cdk-turnkey/stackname");
         console.error(e);
         process.exit(3);
       }
-      if (
-        e.type !== RedirectType.FOUND &&
-        e.type !== RedirectType.HTTP_ORIGIN
-      ) {
-        console.error(
-          `bad redirect type, must be "${RedirectType.FOUND}" or "${RedirectType.HTTP_ORIGIN}"`
-        );
+      if (e.type !== RedirectType.FOUND) {
+        console.error(`bad redirect type, must be "${RedirectType.FOUND}"`);
         console.error(e);
         process.exit(6);
       }
