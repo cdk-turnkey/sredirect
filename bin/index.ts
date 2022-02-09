@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { App } from "aws-cdk-lib";
+import { URL } from "url";
 const AWS = require("aws-sdk");
 const crypto = require("crypto");
 import { AppStack, AppStackProps, Redirect } from "../lib";
@@ -114,7 +115,7 @@ const stackname = require("@cdk-turnkey/stackname");
       }
     };
     const parsedRedirects = parsed.map(
-      (e) => new Redirect(e.from, e.to, e.type)
+      (e) => new Redirect(new URL(e.from), new URL(e.to), e.type)
     );
     assertNonEmptyRedirectArray(parsedRedirects);
     return parsedRedirects; // it's an array of Redirects, ish
