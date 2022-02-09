@@ -1,14 +1,15 @@
 import { requiredCerts } from "./requiredCerts";
 import { Redirect } from "./index";
 import { RedirectType } from "./RedirectType";
+import { URL } from "url";
 
 describe("requiredCerts", () => {
   test.each([
     {
       redirects: [
         new Redirect(
-          "test1.douglas-naphas.org",
-          "https://example.com",
+          new URL("https://test1.douglas-naphas.org"),
+          new URL("https://example.com"),
           RedirectType.FOUND
         ),
       ],
@@ -17,13 +18,13 @@ describe("requiredCerts", () => {
     {
       redirects: [
         new Redirect(
-          "test1.douglas-naphas.org",
-          "https://example.com",
+          new URL("https://test1.douglas-naphas.org"),
+          new URL("https://example.com"),
           RedirectType.FOUND
         ),
         new Redirect(
-          "douglas-naphas.org",
-          "https://example.com",
+          new URL("https://douglas-naphas.org"),
+          new URL("https://example.com"),
           RedirectType.FOUND
         ),
       ],
@@ -32,23 +33,23 @@ describe("requiredCerts", () => {
     {
       redirects: [
         new Redirect(
-          "test1.bbb.org",
-          "https://example.com",
+          new URL("https://test1.bbb.org"),
+          new URL("https://example.com"),
           RedirectType.FOUND
         ),
         new Redirect(
-          "test1.aaa.org",
-          "https://example.com",
+          new URL("https://test1.aaa.org"),
+          new URL("https://example.com"),
           RedirectType.FOUND
         ),
         new Redirect(
-          "test1.douglas-naphas.org",
-          "https://example.com",
+          new URL("https://test1.douglas-naphas.org"),
+          new URL("https://example.com"),
           RedirectType.FOUND
         ),
         new Redirect(
-          "douglas-naphas.org",
-          "https://example.com",
+          new URL("https://douglas-naphas.org"),
+          new URL("https://example.com"),
           RedirectType.FOUND
         ),
       ],
@@ -62,27 +63,35 @@ describe("requiredCerts", () => {
     {
       redirects: [
         new Redirect(
-          "test1.bbb.org",
-          "https://example.com",
+          new URL("https://test1.bbb.org"),
+          new URL("https://example.com"),
           RedirectType.FOUND
         ),
         new Redirect(
-          "test1.aaa.org",
-          "https://example.com",
-          RedirectType.FOUND
-        ),
-        new Redirect("r.zzz.com", "https://example.com", RedirectType.FOUND),
-        new Redirect(
-          "test1.douglas-naphas.org",
-          "https://example.com",
+          new URL("https://test1.aaa.org"),
+          new URL("https://example.com"),
           RedirectType.FOUND
         ),
         new Redirect(
-          "douglas-naphas.org",
-          "https://example.com",
+          new URL("https://r.zzz.com"),
+          new URL("https://example.com"),
           RedirectType.FOUND
         ),
-        new Redirect("zzz.com", "https://example.com", RedirectType.FOUND),
+        new Redirect(
+          new URL("https://test1.douglas-naphas.org"),
+          new URL("https://example.com"),
+          RedirectType.FOUND
+        ),
+        new Redirect(
+          new URL("https://douglas-naphas.org"),
+          new URL("https://example.com"),
+          RedirectType.FOUND
+        ),
+        new Redirect(
+          new URL("https://zzz.com"),
+          new URL("https://example.com"),
+          RedirectType.FOUND
+        ),
       ],
       expected: [
         "douglas-naphas.org",
@@ -96,32 +105,40 @@ describe("requiredCerts", () => {
     {
       redirects: [
         new Redirect(
-          "test1.bbb.org",
-          "https://example.com",
+          new URL("https://test1.bbb.org"),
+          new URL("https://example.com"),
           RedirectType.FOUND
         ),
         new Redirect(
-          "test1.aaa.org",
-          "https://example.com",
-          RedirectType.FOUND
-        ),
-        new Redirect("r.zzz.com", "https://example.com", RedirectType.FOUND),
-        new Redirect(
-          "test1.douglas-naphas.org",
-          "https://example.com",
+          new URL("https://test1.aaa.org"),
+          new URL("https://example.com"),
           RedirectType.FOUND
         ),
         new Redirect(
-          "douglas-naphas.org",
-          "https://example.com",
+          new URL("https://r.zzz.com"),
+          new URL("https://example.com"),
           RedirectType.FOUND
         ),
         new Redirect(
-          "abc.def.ghi.com",
-          "https://example.com",
+          new URL("https://test1.douglas-naphas.org"),
+          new URL("https://example.com"),
           RedirectType.FOUND
         ),
-        new Redirect("zzz.com", "https://example.com", RedirectType.FOUND),
+        new Redirect(
+          new URL("https://douglas-naphas.org"),
+          new URL("https://example.com"),
+          RedirectType.FOUND
+        ),
+        new Redirect(
+          new URL("https://abc.def.ghi.com"),
+          new URL("https://example.com"),
+          RedirectType.FOUND
+        ),
+        new Redirect(
+          new URL("https://zzz.com"),
+          new URL("https://example.com"),
+          RedirectType.FOUND
+        ),
       ],
       expected: [
         "douglas-naphas.org",
@@ -136,33 +153,45 @@ describe("requiredCerts", () => {
     {
       redirects: [
         new Redirect(
-          "test1.bbb.org",
-          "https://example.com",
+          new URL("https://test1.bbb.org"),
+          new URL("https://example.com"),
           RedirectType.FOUND
         ),
         new Redirect(
-          "test1.aaa.org",
-          "https://example.com",
-          RedirectType.FOUND
-        ),
-        new Redirect("ghi.com", "https://example.com", RedirectType.FOUND),
-        new Redirect("r.zzz.com", "https://example.com", RedirectType.FOUND),
-        new Redirect(
-          "test1.douglas-naphas.org",
-          "https://example.com",
+          new URL("https://test1.aaa.org"),
+          new URL("https://example.com"),
           RedirectType.FOUND
         ),
         new Redirect(
-          "douglas-naphas.org",
-          "https://example.com",
+          new URL("https://ghi.com"),
+          new URL("https://example.com"),
           RedirectType.FOUND
         ),
         new Redirect(
-          "abc.def.ghi.com",
-          "https://example.com",
+          new URL("https://r.zzz.com"),
+          new URL("https://example.com"),
           RedirectType.FOUND
         ),
-        new Redirect("zzz.com", "https://example.com", RedirectType.FOUND),
+        new Redirect(
+          new URL("https://test1.douglas-naphas.org"),
+          new URL("https://example.com"),
+          RedirectType.FOUND
+        ),
+        new Redirect(
+          new URL("https://douglas-naphas.org"),
+          new URL("https://example.com"),
+          RedirectType.FOUND
+        ),
+        new Redirect(
+          new URL("https://abc.def.ghi.com"),
+          new URL("https://example.com"),
+          RedirectType.FOUND
+        ),
+        new Redirect(
+          new URL("https://zzz.com"),
+          new URL("https://example.com"),
+          RedirectType.FOUND
+        ),
       ],
       expected: [
         "douglas-naphas.org",

@@ -5,17 +5,18 @@ import { aws_cloudfront_origins as origins } from "aws-cdk-lib";
 import { aws_certificatemanager as certificatemanager } from "aws-cdk-lib";
 import { aws_route53_targets as targets } from "aws-cdk-lib";
 import { aws_route53 as route53 } from "aws-cdk-lib";
+import { URL } from "url";
 import { RedirectType } from "./RedirectType";
 import { requiredCerts } from "./requiredCerts";
 
 export class Redirect {
-  constructor(from: string, to: string, type: RedirectType) {
+  constructor(from: URL, to: URL, type: RedirectType) {
     this.from = from;
     this.to = to;
     this.type = type;
   }
-  from: string;
-  to: string;
+  from: URL;
+  to: URL;
   type: RedirectType;
   toString(): string {
     return `${this.from} -> ${this.to} (${this.type})`;

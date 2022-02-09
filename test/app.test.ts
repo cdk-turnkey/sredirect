@@ -2,6 +2,7 @@ import { Capture, Match, Template } from "aws-cdk-lib/assertions";
 import * as cdk from "aws-cdk-lib";
 import * as Lib from "../lib";
 import { RedirectType } from "../lib/RedirectType";
+import { URL } from "url";
 
 const OLD_ENV = process.env;
 beforeEach(() => {
@@ -17,7 +18,11 @@ test("can instantiate app stack", () => {
   process.env.GITHUB_REF = "refs/heads/master";
   const stack = new Lib.AppStack(app, "MyTestApp", {
     redirects: [
-      new Lib.Redirect("abc.com", "https://example.com", RedirectType.FOUND),
+      new Lib.Redirect(
+        new URL("https://abc.com"),
+        new URL("https://example.com"),
+        RedirectType.FOUND
+      ),
     ],
   });
 });
@@ -27,7 +32,11 @@ test("app stack contains a Hosted Zone", () => {
   process.env.GITHUB_REF = "refs/heads/master";
   const stack = new Lib.AppStack(app, "MyTestApp", {
     redirects: [
-      new Lib.Redirect("abc.com", "https://example.com", RedirectType.FOUND),
+      new Lib.Redirect(
+        new URL("https://abc.com"),
+        new URL("https://example.com"),
+        RedirectType.FOUND
+      ),
     ],
   });
   const template = Template.fromStack(stack);
