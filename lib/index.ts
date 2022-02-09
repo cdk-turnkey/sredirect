@@ -68,19 +68,19 @@ export class AppStack extends Stack {
       versioned: true,
     });
     const cfFunction = new cloudfront.Function(this, "CFF", {
-      code: cloudfront.FunctionCode.fromInline(`
-        function handler(event) {
-          var response = {
-            statusCode: 302,
-            statusDescription: 'Found',
-            headers: {
-              "location": {
-                "value": "https://sites.google.com/view/douglas-naphas-org/home"
-              }
-            }
-          }
-          return response;
-        }`),
+      code: cloudfront.FunctionCode.fromInline(
+        `function handler(event) {` +
+          `var response = {` +
+          `  statusCode: 302,` +
+          `  statusDescription: 'Found',` +
+          `  headers: {` +
+          `    "location": {` +
+          `      "value": "https://sites.google.com/view/douglas-naphas-org/home"` +
+          `    }` +
+          `  }` +
+          `} ; ` +
+          `return response;}`
+      ),
     });
     const distro = new cloudfront.Distribution(this, "Distro", {
       logBucket: new s3.Bucket(this, "DistroLoggingBucket", {

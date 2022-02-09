@@ -45,7 +45,7 @@ test("stack has the expected CFF 1", () => {
     redirects: [
       new Lib.Redirect(
         new URL("https://abc.com"),
-        new URL("https://example.com"),
+        new URL("https://sites.google.com/view/douglas-naphas-org/home"),
         RedirectType.FOUND
       ),
     ],
@@ -56,14 +56,26 @@ test("stack has the expected CFF 1", () => {
     DistributionConfig: distributionConfigCapture,
   });
   const cffCapture = new Capture();
-  // console.log(
-  //   distributionConfigCapture.asObject().DefaultCacheBehavior
-  //     .FunctionAssociations[0]
-  // );
   template.hasResourceProperties("AWS::CloudFront::Distribution", {
     DistributionConfig: Match.objectLike({
       DefaultCacheBehavior: { FunctionAssociations: [cffCapture] },
     }),
   });
-  console.log(cffCapture);
+  const cffCode =
+    template.toJSON().Resources[
+      cffCapture.asObject().FunctionARN["Fn::GetAtt"][0]
+    ].Properties.FunctionCode;
+  const expectedFunctionCode =
+    `function handler(event) {` +
+    `var response = {` +
+    `  statusCode: 302,` +
+    `  statusDescription: 'Found',` +
+    `  headers: {` +
+    `    "location": {` +
+    `      "value": "https://sites.google.com/view/douglas-naphas-org/home"` +
+    `    }` +
+    `  }` +
+    `} ; ` +
+    `return response;}`;
+  expect(cffCode).toEqual(expectedFunctionCode);
 });
