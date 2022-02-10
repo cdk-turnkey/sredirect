@@ -79,3 +79,42 @@ test("stack has the expected CFF 1", () => {
     `return response;}`;
   expect(cffCode).toEqual(expectedFunctionCode);
 });
+test("stack has the expected CFF 2", () => {
+  const stack = new Lib.AppStack(app, "MyTestApp", {
+    redirects: [
+      new Lib.Redirect(
+        new URL("https://abc.com"),
+        new URL("https://somewhere-else.com"),
+        RedirectType.FOUND
+      ),
+    ],
+  });
+  const template = Template.fromStack(stack);
+  const distributionConfigCapture = new Capture();
+  template.hasResourceProperties("AWS::CloudFront::Distribution", {
+    DistributionConfig: distributionConfigCapture,
+  });
+  const cffCapture = new Capture();
+  template.hasResourceProperties("AWS::CloudFront::Distribution", {
+    DistributionConfig: Match.objectLike({
+      DefaultCacheBehavior: { FunctionAssociations: [cffCapture] },
+    }),
+  });
+  const cffCode =
+    template.toJSON().Resources[
+      cffCapture.asObject().FunctionARN["Fn::GetAtt"][0]
+    ].Properties.FunctionCode;
+  const expectedFunctionCode =
+    `function handler(event) {` +
+    `var response = {` +
+    `  statusCode: 302,` +
+    `  statusDescription: 'Found',` +
+    `  headers: {` +
+    `    "location": {` +
+    `      "value": "https://somewhere-else.com"` +
+    `    }` +
+    `  }` +
+    `} ; ` +
+    `return response;}`;
+  expect(cffCode).toEqual(expectedFunctionCode);
+});
