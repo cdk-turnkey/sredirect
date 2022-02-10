@@ -118,3 +118,91 @@ test("stack has the expected CFF 2", () => {
     `return response;}`;
   expect(cffCode).toEqual(expectedFunctionCode);
 });
+
+test("stack has the expected CFF(s) 3", () => {
+  const stack = new Lib.AppStack(app, "MyTestApp", {
+    redirects: [
+      new Lib.Redirect(
+        new URL("https://email.fromme.com"),
+        new URL("https://tome.co/get/your/email/here"),
+        RedirectType.FOUND
+      ),
+      new Lib.Redirect(
+        new URL("https://fromme.com/apply"),
+        new URL("https://appsite.us?status=new"),
+        RedirectType.FOUND
+      ),
+      new Lib.Redirect(
+        new URL("https://fromme.com/rules"),
+        new URL("https://national-rules-site.org"),
+        RedirectType.FOUND
+      ),
+      new Lib.Redirect(
+        new URL("https://fromme.com/rules?category=stem"),
+        new URL("https://national-rules-site.org/science-and-math"),
+        RedirectType.FOUND
+      ),
+      new Lib.Redirect(
+        new URL("https://fromme.com"),
+        new URL("https://tome.com"),
+        RedirectType.FOUND
+      ),
+      new Lib.Redirect(
+        new URL("https://other-fromme.com"),
+        new URL("https://tome.com"),
+        RedirectType.FOUND
+      ),
+      new Lib.Redirect(
+        new URL("https://other-from.com/review"),
+        new URL("https://forms.google.com/view/?form_id=123abcxxx"),
+        RedirectType.FOUND
+      ),
+      new Lib.Redirect(
+        new URL("https://fromme.com?participant-id=4499"),
+        new URL("https://docs.google.com/edit/zzbbaajj"),
+        RedirectType.FOUND
+      ),
+    ],
+  });
+
+  // we expect:
+  // 1 distro
+  // 1 behavior per path...right?
+  // each cff has to map from a particular set of {host, query param set} tuples
+  // to destination URLs
+  const expectedPseudoDistro = {
+    defaultBehavior: {
+      // everything where the path is /
+    },
+    additionalBehaviors: [{}],
+  };
+
+  const template = Template.fromStack(stack);
+  const distributionConfigCapture = new Capture();
+  template.hasResourceProperties("AWS::CloudFront::Distribution", {
+    DistributionConfig: distributionConfigCapture,
+  });
+  const cffCapture = new Capture();
+  template.hasResourceProperties("AWS::CloudFront::Distribution", {
+    DistributionConfig: Match.objectLike({
+      DefaultCacheBehavior: { FunctionAssociations: [cffCapture] },
+    }),
+  });
+  const cffCode =
+    template.toJSON().Resources[
+      cffCapture.asObject().FunctionARN["Fn::GetAtt"][0]
+    ].Properties.FunctionCode;
+  const expectedFunctionCode =
+    `function handler(event) {` +
+    `var response = {` +
+    `  statusCode: 302,` +
+    `  statusDescription: 'Found',` +
+    `  headers: {` +
+    `    "location": {` +
+    `      "value": "https://somewhere-else.com"` +
+    `    }` +
+    `  }` +
+    `} ; ` +
+    `return response;}`;
+  expect(cffCode).toEqual(expectedFunctionCode);
+});
