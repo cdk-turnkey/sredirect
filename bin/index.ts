@@ -125,3 +125,5 @@ const stackname = require("@cdk-turnkey/stackname");
   console.log(appProps.redirects);
   new AppStack(app, stackname("app"), { redirects });
 })();
+
+// TODO: no backticks allowed...or other checks to prevent injection
