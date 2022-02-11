@@ -129,7 +129,64 @@ describe("CFF code for 'stack has the expected CFF(s) 3'", () => {
   });
 });
 describe("redirects2Legend", () => {
+  // class LegendEntry {
+  //   querystring: { [index: string]: string };
+  //   locationValue: string;
+  //   toString(): string {
+  //     return ''
+  //   }
+  // }
+  type LegendValue = [
+    {
+      querystring: { [index: string]: string };
+      locationValue: string;
+    }
+  ];
+  class Legend {
+    [index: string]: LegendValue;
+  }
+  function legend2String(legend: Legend): string {
+    let st = `{\n`;
+    for (const [legendKey, legendValue] of Object.entries(legend)) {
+      st += `  "${legendKey}": [\n`;
+      for (const legendPair of legendValue) {
+        st += `    {\n ` + `      querystring: {`;
+        for (const [queryParamName, queryParamValue] of Object.entries(
+          legendPair.querystring
+        )) {
+          st += `"${queryParamName}": "${queryParamValue}", `;
+        }
+        st +=
+          `}\n` +
+          `      locationValue: "${legendPair.locationValue}"\n` +
+          `    },\n`;
+      }
+      st += `  ],\n`;
+    }
+    st += `}\n`;
+    return st;
+  }
   const redirects2Legend = (redirects: [Redirect, ...Redirect[]]): string => {
+    let ret = `{\n`;
+    redirects.forEach((redirect) => {
+      ret +=
+        `  "${redirect.from.origin}": [\n` +
+        `    {\n ` +
+        `      querystring: {`;
+      for (const [key, value] of redirect.from.searchParams) {
+        ret += `"${key}": "${value},"`;
+      }
+      ret +=
+        `}\n` + `      locationValue: "${redirect.to.href}"\n` + `    },\n`;
+    });
+
+    // TODO: actually, we need to convert the independent Redirects into
+    // an object that has all the querystring possibilities for a given origin
+    // accumulated together into one array. We need a Legend type/class. It can
+    // have a toString method that prints it as needed.
+
+    ret += `}\n`;
+
     return (
       `{\n` +
       `  "https://abc.com": [\n` +
