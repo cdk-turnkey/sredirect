@@ -1,3 +1,7 @@
+import { URL } from "url";
+import { isArray } from "util";
+import { Redirect } from "../lib";
+import { RedirectType } from "../lib/RedirectType";
 describe("CFF code for 'stack has the expected CFF(s) 3'", () => {
   describe("path /", () => {
     const handlerWithNestedFor = (event: any): any => {
@@ -122,5 +126,95 @@ describe("CFF code for 'stack has the expected CFF(s) 3'", () => {
         ).toEqual(expected);
       }
     );
+  });
+});
+describe("redirects2Legend", () => {
+  const redirects2Legend = (redirects: [Redirect, ...Redirect[]]): string => {
+    return (
+      `{\n` +
+      `  "https://abc.com": [\n` +
+      `    {\n ` +
+      `      querystring: {"q": "123"}\n` +
+      `      locationValue: "https://to.com?to=2"\n` +
+      `    },\n` +
+      `    {\n ` +
+      `      querystring: {"q": "123", "r": "stuv"}\n` +
+      `      locationValue: "https://destination.com"\n` +
+      `    },\n` +
+      `  ],\n` +
+      `  "https://uvw.xyz.com": [\n` +
+      `    {\n ` +
+      `      querystring: {"q": "123", "r": "stuv"}\n` +
+      `      locationValue: "https://target.org/a/path"\n` +
+      `    },\n` +
+      `    {\n ` +
+      `      querystring: {}\n` +
+      `      locationValue: "https://no-query-string.net"\n` +
+      `    },\n` +
+      `  ],\n` +
+      `}\n`
+    );
+  };
+  test.each([
+    {
+      redirects: [
+        new Redirect(
+          new URL("https://abc.com?q=123"),
+          new URL("https://to.com?to=2"),
+          RedirectType.FOUND
+        ),
+        new Redirect(
+          new URL("https://abc.com?q=123&r=stuv"),
+          new URL("https://destination.com"),
+          RedirectType.FOUND
+        ),
+        new Redirect(
+          new URL("https://uvw.xyz.com?q=123&r=stuv"),
+          new URL("https://target.org/a/path"),
+          RedirectType.FOUND
+        ),
+        new Redirect(
+          new URL("https://uvw.xyz.com"),
+          new URL("https://no-query-string.net"),
+          RedirectType.FOUND
+        ),
+      ],
+      expected:
+        `{\n` +
+        `  "https://abc.com": [\n` +
+        `    {\n ` +
+        `      querystring: {"q": "123"}\n` +
+        `      locationValue: "https://to.com?to=2"\n` +
+        `    },\n` +
+        `    {\n ` +
+        `      querystring: {"q": "123", "r": "stuv"}\n` +
+        `      locationValue: "https://destination.com"\n` +
+        `    },\n` +
+        `  ],\n` +
+        `  "https://uvw.xyz.com": [\n` +
+        `    {\n ` +
+        `      querystring: {"q": "123", "r": "stuv"}\n` +
+        `      locationValue: "https://target.org/a/path"\n` +
+        `    },\n` +
+        `    {\n ` +
+        `      querystring: {}\n` +
+        `      locationValue: "https://no-query-string.net"\n` +
+        `    },\n` +
+        `  ],\n` +
+        `}\n`,
+    },
+  ])("$redirects -> $expected", ({ redirects, expected }) => {
+    function assertNonEmptyRedirectArray(
+      input: unknown
+    ): asserts input is [Redirect, ...Redirect[]] {
+      if (!Array.isArray(input)) {
+        throw new Error("input is not array");
+      }
+      if (input.length < 1) {
+        throw new Error("input length < 1");
+      }
+    }
+    assertNonEmptyRedirectArray(redirects);
+    expect(redirects2Legend(redirects)).toEqual(expected);
   });
 });

@@ -102,6 +102,7 @@ const stackname = require("@cdk-turnkey/stackname");
     // or maybe I need one cert, possibly with a bunch of second-level domain
     // names, one distro, and a bunch of rules/behaviors routing based on the
     // domain
+    // TODO: export this asserts function
     const assertNonEmptyRedirectArray: (
       input: unknown
     ) => asserts input is [Redirect, ...Redirect[]] = (

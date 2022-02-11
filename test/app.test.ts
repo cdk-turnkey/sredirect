@@ -108,10 +108,12 @@ test("stack has the expected CFF 2", () => {
     `function handler(event) {\n` +
     `  var legend = {\n` +
     /////////////////// this is the part that varies ///////////////////////////
-    `    "https://abc.com": {` +
-    `      querystring: {},` +
-    `      locationValue: "https://somewhere-else.com"` +
-    `    },` +
+    `    "https://abc.com": [` +
+    `       {` +
+    `         querystring: {},` +
+    `         locationValue: "https://somewhere-else.com"` +
+    `       },` +
+    `     ],` +
     ////////////////////////////////////////////////////////////////////////////
     `  };\n` +
     `  var request = event.request;\n` +
