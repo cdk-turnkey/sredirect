@@ -105,17 +105,42 @@ test("stack has the expected CFF 2", () => {
       cffCapture.asObject().FunctionARN["Fn::GetAtt"][0]
     ].Properties.FunctionCode;
   const expectedFunctionCode =
-    `function handler(event) {` +
-    `var response = {` +
-    `  statusCode: 302,` +
-    `  statusDescription: 'Found',` +
-    `  headers: {` +
-    `    "location": {` +
-    `      "value": "https://somewhere-else.com"` +
+    `function handler(event) {\n` +
+    `  var legend = {\n` +
+    /////////////////// this is the part that varies ///////////////////////////
+    `    "https://abc.com": {` +
+    `      querystring: {},` +
+    `      locationValue: "https://somewhere-else.com"` +
+    `    },` +
+    ////////////////////////////////////////////////////////////////////////////
+    `  };\n` +
+    `  var request = event.request;\n` +
+    `  var response404 = {statusCode: 404, statusDescription: "Not Found"};\n` +
+    `  if(!request.headers.host){return response404;}\n` +
+    `  if(typeof request.headers.host != "string){return response404;}\n` +
+    `  if(!legend[request.headers.host]){return response404;}\n` +
+    `  for (var i = 0; i < legend[request.headers.host].length; i++) {\n` +
+    `    var legendQuerystringEntries = Object.entries(\n` +
+    `      legend[request.headers.host][i].querystring\n` +
+    `  );\n` +
+    `    for (var j = 0; j < legendQuerystringEntries.length; j++) {\n` +
+    `      if(\n` +
+    `        request.querystring[legendQuerystringEntries[j][0]] !=\n` +
+    `        legendQuerystringEntries[j][1]\n` +
+    `      ){return response404;}\n` +
+    `    }\n` +
+    `    return {\n` +
+    `      statusCode: 302,` +
+    `      statusDescription: "Found",` +
+    `      headers: {` +
+    `        location: {` +
+    `          value: legend[request.headers.host][i].locationValue` +
+    `        }` +
+    `      }` +
     `    }` +
     `  }` +
-    `} ; ` +
-    `return response;}`;
+    `  return response404;` +
+    `}`;
   expect(cffCode).toEqual(expectedFunctionCode);
 });
 
@@ -204,5 +229,7 @@ test("stack has the expected CFF(s) 3", () => {
     `  }` +
     `} ; ` +
     `return response;}`;
+  // should only be asserting about the CFF associated with the default
+  // behavior
   expect(cffCode).toEqual(expectedFunctionCode);
 });
