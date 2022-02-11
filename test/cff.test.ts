@@ -56,11 +56,34 @@ describe("CFF code for 'stack has the expected CFF(s) 3'", () => {
         ],
       };
       var request = event.request;
-      var response: any = {
-        statusCode: 302,
-        statusDescription: "Found",
+      var response404 = {
+        statusCode: 404,
+        statusDescription: "Not Found",
       };
-      if (!legend[request.headers && request.headers.host]) {
+      if (!request.headers.host) {
+        return response404;
+      }
+      if (typeof request.headers.host != "string") {
+        return response404;
+      }
+      if (!legend[request.headers.host]) {
+        return response404;
+      }
+      var querystringEntries = Object.entries(
+        legend[request.headers.host].querystring
+      );
+      for (var i = 0; i < querystringEntries.length; i++) {
+        if (
+          request.querystring &&
+          request.querystring[querystringEntries[i][0]] ==
+            querystringEntries[i][1]
+        ) {
+          return {
+            statusCode: 302,
+            statusDescription: "Found",
+            headers: { location: { value: legend[i].locationValue } },
+          };
+        }
       }
     };
     test.each([
@@ -79,6 +102,10 @@ describe("CFF code for 'stack has the expected CFF(s) 3'", () => {
       ({ querystring, headers, expected }) => {
         expect(
           handlerWithNestedFor({ request: { querystring, headers } }).headers
+            .location.value
+        ).toEqual(expected);
+        expect(
+          handlerWithMapLookup({ request: { querystring, headers } }).headers
             .location.value
         ).toEqual(expected);
       }
