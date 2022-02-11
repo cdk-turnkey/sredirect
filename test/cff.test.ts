@@ -69,22 +69,34 @@ describe("CFF code for 'stack has the expected CFF(s) 3'", () => {
       if (!legend[request.headers.host]) {
         return response404;
       }
-      var querystringEntries = Object.entries(
-        legend[request.headers.host].querystring
-      );
-      for (var i = 0; i < querystringEntries.length; i++) {
-        if (
-          request.querystring &&
-          request.querystring[querystringEntries[i][0]] ==
-            querystringEntries[i][1]
-        ) {
-          return {
-            statusCode: 302,
-            statusDescription: "Found",
-            headers: { location: { value: legend[i].locationValue } },
-          };
+      for (var i = 0; i < legend[request.headers.host].length; i++) {
+        var legendQuerystringEntries = Object.entries(
+          legend[request.headers.host][i].querystring
+        );
+
+        for (var j = 0; j < legendQuerystringEntries.length; j++) {
+          // all legendQuerystringEntries must be present on the request
+          // if a single one isn't, send 404
+          if (
+            request.querystring[legendQuerystringEntries[j][0]] !=
+            legendQuerystringEntries[j][1]
+          ) {
+            return response404;
+          }
         }
+        // if we got through the above loop, we have a host match and a query
+        // string match, so return 302
+        return {
+          statusCode: 302,
+          statusDescription: "Found",
+          headers: {
+            location: {
+              value: legend[request.headers.host][i].locationValue,
+            },
+          },
+        };
       }
+      return response404;
     };
     test.each([
       {
