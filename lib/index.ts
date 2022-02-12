@@ -10,6 +10,7 @@ import { RedirectType } from "./RedirectType";
 import { requiredCerts } from "./requiredCerts";
 import { redirects2LegendString } from "./Legend";
 import { assertNonEmptyRedirectArray } from "./assertNonEmptyRedirectArray";
+import { S3Origin } from "aws-cdk-lib/aws-cloudfront-origins";
 
 export class Redirect {
   constructor(from: URL, to: URL, type: RedirectType) {
@@ -28,6 +29,39 @@ export class Redirect {
 export interface AppStackProps extends StackProps {
   redirects: [Redirect, ...Redirect[]];
 }
+
+const CFF_BEGINNING = `function handler(event) {\n` + `  var legend = `;
+const CFF_BODY =
+  `  var request = event.request;\n` +
+  `  var response404 = {statusCode: 404, statusDescription: "Not Found"};\n` +
+  `  if(!request.headers.host){return response404;}\n` +
+  `  if(!request.headers.host.value){return response404;}\n` +
+  `  if(typeof request.headers.host.value != "string"){return response404;}\n` +
+  `  if(!legend[request.headers.host.value]){return response404;}\n` +
+  `  for (var i = 0; i < legend[request.headers.host.value].length; i++) {\n` +
+  `    var legendQuerystringEntries = Object.entries(\n` +
+  `      legend[request.headers.host.value][i].querystring\n` +
+  `  );\n` +
+  `    for (var j = 0; j < legendQuerystringEntries.length; j++) {\n` +
+  `      if(\n` +
+  `        request.querystring[legendQuerystringEntries[j][0]] !=\n` +
+  `        legendQuerystringEntries[j][1]\n` +
+  `      ){return response404;}\n` +
+  `    }\n` +
+  `    return {\n` +
+  `      statusCode: 302,` +
+  `      statusDescription: "Found",` +
+  `      headers: {` +
+  `        location: {` +
+  `          value: legend[request.headers.host.value][i].locationValue` +
+  `        }` +
+  `      }` +
+  `    }` +
+  `  }` +
+  `  return response404;` +
+  `}`;
+const cffCode = (legendPart: string): string =>
+  CFF_BEGINNING + legendPart + CFF_BODY;
 export class AppStack extends Stack {
   constructor(scope: App, id: string, props: AppStackProps) {
     super(scope, id, props);
@@ -38,7 +72,7 @@ export class AppStack extends Stack {
     // I need to do some computation on redirects
     // In Namecheap I can only get certs for *.abc.com and abc.com, not
     // xyz.abc.com
-    const domainNames = requiredCerts(redirects);
+    const certNames = requiredCerts(redirects);
     const assertNonEmptyStringArray: (
       input: unknown
     ) => asserts input is [string, ...string[]] = (
@@ -51,12 +85,12 @@ export class AppStack extends Stack {
         throw new Error("input length < 1");
       }
     };
-    assertNonEmptyStringArray(domainNames);
-    if (domainNames.length > 1) {
-      subjectAlternativeNames = domainNames.slice(1);
+    assertNonEmptyStringArray(certNames);
+    if (certNames.length > 1) {
+      subjectAlternativeNames = certNames.slice(1);
     }
     const certificate = new certificatemanager.Certificate(this, "Cert", {
-      domainName: domainNames[0],
+      domainName: certNames[0],
       subjectAlternativeNames,
       validation: certificatemanager.CertificateValidation.fromDns(),
     });
@@ -75,41 +109,10 @@ export class AppStack extends Stack {
     assertNonEmptyRedirectArray(redirectsFromRootPath);
     const defaultCFF = new cloudfront.Function(this, "CFF", {
       code: cloudfront.FunctionCode.fromInline(
-        `function handler(event) {\n` +
-          `  var legend = ` +
-          /////////////////// this is the part that varies ///////////////////////////
-          redirects2LegendString(redirectsFromRootPath) +
-          ////////////////////////////////////////////////////////////////////////////
-          `  var request = event.request;\n` +
-          `  var response404 = {statusCode: 404, statusDescription: "Not Found"};\n` +
-          `  if(!request.headers.host){return response404;}\n` +
-          `  if(!request.headers.host.value){return response404;}\n` +
-          `  if(typeof request.headers.host.value != "string"){return response404;}\n` +
-          `  if(!legend[request.headers.host.value]){return response404;}\n` +
-          `  for (var i = 0; i < legend[request.headers.host.value].length; i++) {\n` +
-          `    var legendQuerystringEntries = Object.entries(\n` +
-          `      legend[request.headers.host.value][i].querystring\n` +
-          `  );\n` +
-          `    for (var j = 0; j < legendQuerystringEntries.length; j++) {\n` +
-          `      if(\n` +
-          `        request.querystring[legendQuerystringEntries[j][0]] !=\n` +
-          `        legendQuerystringEntries[j][1]\n` +
-          `      ){return response404;}\n` +
-          `    }\n` +
-          `    return {\n` +
-          `      statusCode: 302,` +
-          `      statusDescription: "Found",` +
-          `      headers: {` +
-          `        location: {` +
-          `          value: legend[request.headers.host.value][i].locationValue` +
-          `        }` +
-          `      }` +
-          `    }` +
-          `  }` +
-          `  return response404;` +
-          `}`
+        cffCode(redirects2LegendString(redirectsFromRootPath))
       ),
     });
+    const origin = new origins.S3Origin(bucket);
     const distro = new cloudfront.Distribution(this, "Distro", {
       logBucket: new s3.Bucket(this, "DistroLoggingBucket", {
         ...defaultBucketProps,
@@ -117,7 +120,7 @@ export class AppStack extends Stack {
       logFilePrefix: "distribution-access-logs/",
       defaultRootObject: "index.html",
       defaultBehavior: {
-        origin: new origins.S3Origin(bucket),
+        origin,
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
         functionAssociations: [
@@ -127,13 +130,24 @@ export class AppStack extends Stack {
           },
         ],
       },
-      domainNames,
+      domainNames: certNames,
       certificate,
     });
     distro.node.addDependency(certificate);
+    distro.addBehavior("/apply", origin, {});
 
+    console.log(certNames);
     const hostedZones: any = {};
-    domainNames
+    // const zoneNames
+    const zoneNames = Array.from(
+      certNames.reduce((acc, curr) => {
+        return acc.add(curr.replace(/^[*][.]/, ""));
+      }, new Set())
+    );
+    console.log(zoneNames)
+
+    // const recordSetNames
+    certNames
       .filter((domainName) => !domainName.match(/[*]/))
       .forEach((zoneName, index) => {
         const hostedZone = new route53.PublicHostedZone(
@@ -145,7 +159,8 @@ export class AppStack extends Stack {
         );
         hostedZones[zoneName] = hostedZone;
       });
-    domainNames.forEach((domainName, index) => {
+    // console.log(hostedZones)
+    certNames.forEach((domainName, index) => {
       new route53.ARecord(this, `ARecord${index}`, {
         recordName: domainName,
         zone: hostedZones[domainName.replace(/^[*][.]/, "")],
