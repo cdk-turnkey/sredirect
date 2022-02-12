@@ -83,7 +83,7 @@ export class AppStack extends Stack {
           `  var request = event.request;\n` +
           `  var response404 = {statusCode: 404, statusDescription: "Not Found"};\n` +
           `  if(!request.headers.host){return response404;}\n` +
-          `  if(typeof request.headers.host != "string){return response404;}\n` +
+          `  if(typeof request.headers.host != "string"){return response404;}\n` +
           `  if(!legend[request.headers.host]){return response404;}\n` +
           `  for (var i = 0; i < legend[request.headers.host].length; i++) {\n` +
           `    var legendQuerystringEntries = Object.entries(\n` +
