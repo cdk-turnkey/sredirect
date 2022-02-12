@@ -142,7 +142,7 @@ describe("redirects2Legend", () => {
       locationValue: string;
     }
   ];
-  class Legend {
+  interface Legend {
     [index: string]: LegendValue;
   }
   function legend2String(legend: Legend): string {
@@ -166,7 +166,42 @@ describe("redirects2Legend", () => {
     st += `}\n`;
     return st;
   }
-  const redirects2Legend = (redirects: [Redirect, ...Redirect[]]): string => {
+  const redirects2Legend = (redirects: [Redirect, ...Redirect[]]): Legend => {
+    // let ret: Legend
+    // redirects.forEach(
+    //   ret['g'] = [{querystring: {'a': 'b'}, locationValue: 'f'}]
+    // )
+    // return ret;
+    // const ret: any = {}
+    // ret['g'] = 3;
+    // redirects.forEach(redirect => {
+    //   ret[redirect.from.href] =
+    // })
+    // return ret;
+
+    // first turn redirects into an object with all the redirects accumulated
+    // into an array mapped to by their href
+
+    const legend: any = {};
+    redirects.forEach((redirect) => {
+      if (!legend[redirect.from.origin]) {
+        legend[redirect.from.origin] = [];
+      }
+      const querystring: any = {};
+      for (const [queryParamName, queryParamValue] of redirect.from
+        .searchParams) {
+        querystring[queryParamName] = queryParamValue;
+      }
+      legend[redirect.from.origin].push({
+        querystring,
+        locationValue: redirect.to.href,
+      });
+    });
+    return legend;
+  };
+  const redirects2LegendString = (
+    redirects: [Redirect, ...Redirect[]]
+  ): string => {
     let ret = `{\n`;
     redirects.forEach((redirect) => {
       ret +=
@@ -236,7 +271,29 @@ describe("redirects2Legend", () => {
           RedirectType.FOUND
         ),
       ],
-      expected:
+      expectedLegend: {
+        "https://abc.com": [
+          {
+            querystring: { q: "123" },
+            locationValue: "https://to.com/?to=2",
+          },
+          {
+            querystring: { q: "123", r: "stuv" },
+            locationValue: "https://destination.com/",
+          },
+        ],
+        "https://uvw.xyz.com": [
+          {
+            querystring: { q: "123", r: "stuv" },
+            locationValue: "https://target.org/a/path",
+          },
+          {
+            querystring: {},
+            locationValue: "https://no-query-string.net/",
+          },
+        ],
+      },
+      expectedString:
         `{\n` +
         `  "https://abc.com": [\n` +
         `    {\n ` +
@@ -260,18 +317,22 @@ describe("redirects2Legend", () => {
         `  ],\n` +
         `}\n`,
     },
-  ])("$redirects -> $expected", ({ redirects, expected }) => {
-    function assertNonEmptyRedirectArray(
-      input: unknown
-    ): asserts input is [Redirect, ...Redirect[]] {
-      if (!Array.isArray(input)) {
-        throw new Error("input is not array");
+  ])(
+    "$redirects -> $expected",
+    ({ redirects, expectedLegend, expectedString }) => {
+      function assertNonEmptyRedirectArray(
+        input: unknown
+      ): asserts input is [Redirect, ...Redirect[]] {
+        if (!Array.isArray(input)) {
+          throw new Error("input is not array");
+        }
+        if (input.length < 1) {
+          throw new Error("input length < 1");
+        }
       }
-      if (input.length < 1) {
-        throw new Error("input length < 1");
-      }
+      assertNonEmptyRedirectArray(redirects);
+      expect(redirects2LegendString(redirects)).toEqual(expectedString);
+      expect(redirects2Legend(redirects)).toEqual(expectedLegend);
     }
-    assertNonEmptyRedirectArray(redirects);
-    expect(redirects2Legend(redirects)).toEqual(expected);
-  });
+  );
 });
