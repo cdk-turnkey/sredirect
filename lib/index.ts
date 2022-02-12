@@ -8,6 +8,7 @@ import { aws_route53 as route53 } from "aws-cdk-lib";
 import { URL } from "url";
 import { RedirectType } from "./RedirectType";
 import { requiredCerts } from "./requiredCerts";
+import { redirects2LegendString } from "./Legend";
 
 export class Redirect {
   constructor(from: URL, to: URL, type: RedirectType) {
@@ -69,17 +70,38 @@ export class AppStack extends Stack {
     });
     const cfFunction = new cloudfront.Function(this, "CFF", {
       code: cloudfront.FunctionCode.fromInline(
-        `function handler(event) {` +
-          `var response = {` +
-          `  statusCode: 302,` +
-          `  statusDescription: 'Found',` +
-          `  headers: {` +
-          `    "location": {` +
-          `      "value": "https://sites.google.com/view/douglas-naphas-org/home"` +
+        `function handler(event) {\n` +
+          `  var legend = ` +
+          /////////////////// this is the part that varies ///////////////////////////
+          redirects2LegendString(redirects) +
+          ////////////////////////////////////////////////////////////////////////////
+          `  var request = event.request;\n` +
+          `  var response404 = {statusCode: 404, statusDescription: "Not Found"};\n` +
+          `  if(!request.headers.host){return response404;}\n` +
+          `  if(typeof request.headers.host != "string){return response404;}\n` +
+          `  if(!legend[request.headers.host]){return response404;}\n` +
+          `  for (var i = 0; i < legend[request.headers.host].length; i++) {\n` +
+          `    var legendQuerystringEntries = Object.entries(\n` +
+          `      legend[request.headers.host][i].querystring\n` +
+          `  );\n` +
+          `    for (var j = 0; j < legendQuerystringEntries.length; j++) {\n` +
+          `      if(\n` +
+          `        request.querystring[legendQuerystringEntries[j][0]] !=\n` +
+          `        legendQuerystringEntries[j][1]\n` +
+          `      ){return response404;}\n` +
+          `    }\n` +
+          `    return {\n` +
+          `      statusCode: 302,` +
+          `      statusDescription: "Found",` +
+          `      headers: {` +
+          `        location: {` +
+          `          value: legend[request.headers.host][i].locationValue` +
+          `        }` +
+          `      }` +
           `    }` +
           `  }` +
-          `} ; ` +
-          `return response;}`
+          `  return response404;` +
+          `}`
       ),
     });
     const distro = new cloudfront.Distribution(this, "Distro", {

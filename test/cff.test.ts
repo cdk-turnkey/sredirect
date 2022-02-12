@@ -1,5 +1,4 @@
 import { URL } from "url";
-import { isArray } from "util";
 import { Redirect } from "../lib";
 import { RedirectType } from "../lib/RedirectType";
 describe("CFF code for 'stack has the expected CFF(s) 3'", () => {
@@ -129,13 +128,6 @@ describe("CFF code for 'stack has the expected CFF(s) 3'", () => {
   });
 });
 describe("redirects2Legend", () => {
-  // class LegendEntry {
-  //   querystring: { [index: string]: string };
-  //   locationValue: string;
-  //   toString(): string {
-  //     return ''
-  //   }
-  // }
   type LegendValue = [
     {
       querystring: { [index: string]: string };
@@ -202,49 +194,6 @@ describe("redirects2Legend", () => {
   const redirects2LegendString = (
     redirects: [Redirect, ...Redirect[]]
   ): string => {
-    let ret = `{\n`;
-    redirects.forEach((redirect) => {
-      ret +=
-        `  "${redirect.from.origin}": [\n` +
-        `    {\n ` +
-        `      querystring: {`;
-      for (const [key, value] of redirect.from.searchParams) {
-        ret += `"${key}": "${value},"`;
-      }
-      ret +=
-        `}\n` + `      locationValue: "${redirect.to.href}"\n` + `    },\n`;
-    });
-
-    // TODO: actually, we need to convert the independent Redirects into
-    // an object that has all the querystring possibilities for a given origin
-    // accumulated together into one array. We need a Legend type/class. It can
-    // have a toString method that prints it as needed.
-
-    ret += `}\n`;
-
-    const oldRet =
-      `{\n` +
-      `  "https://abc.com": [\n` +
-      `    {\n ` +
-      `      querystring: {"q": "123"}\n` +
-      `      locationValue: "https://to.com?to=2"\n` +
-      `    },\n` +
-      `    {\n ` +
-      `      querystring: {"q": "123", "r": "stuv"}\n` +
-      `      locationValue: "https://destination.com"\n` +
-      `    },\n` +
-      `  ],\n` +
-      `  "https://uvw.xyz.com": [\n` +
-      `    {\n ` +
-      `      querystring: {"q": "123", "r": "stuv"}\n` +
-      `      locationValue: "https://target.org/a/path"\n` +
-      `    },\n` +
-      `    {\n ` +
-      `      querystring: {}\n` +
-      `      locationValue: "https://no-query-string.net"\n` +
-      `    },\n` +
-      `  ],\n` +
-      `}\n`;
     return legend2String(redirects2Legend(redirects));
   };
   test.each([

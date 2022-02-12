@@ -66,56 +66,18 @@ test("stack has the expected CFF 1", () => {
       cffCapture.asObject().FunctionARN["Fn::GetAtt"][0]
     ].Properties.FunctionCode;
   const expectedFunctionCode =
-    `function handler(event) {` +
-    `var response = {` +
-    `  statusCode: 302,` +
-    `  statusDescription: 'Found',` +
-    `  headers: {` +
-    `    "location": {` +
-    `      "value": "https://sites.google.com/view/douglas-naphas-org/home"` +
-    `    }` +
-    `  }` +
-    `} ; ` +
-    `return response;}`;
-  expect(cffCode).toEqual(expectedFunctionCode);
-});
-test("stack has the expected CFF 2", () => {
-  const stack = new Lib.AppStack(app, "MyTestApp", {
-    redirects: [
-      new Lib.Redirect(
-        new URL("https://abc.com"),
-        new URL("https://somewhere-else.com"),
-        RedirectType.FOUND
-      ),
-    ],
-  });
-  const template = Template.fromStack(stack);
-  const distributionConfigCapture = new Capture();
-  template.hasResourceProperties("AWS::CloudFront::Distribution", {
-    DistributionConfig: distributionConfigCapture,
-  });
-  const cffCapture = new Capture();
-  template.hasResourceProperties("AWS::CloudFront::Distribution", {
-    DistributionConfig: Match.objectLike({
-      DefaultCacheBehavior: { FunctionAssociations: [cffCapture] },
-    }),
-  });
-  const cffCode =
-    template.toJSON().Resources[
-      cffCapture.asObject().FunctionARN["Fn::GetAtt"][0]
-    ].Properties.FunctionCode;
-  const expectedFunctionCode =
     `function handler(event) {\n` +
-    `  var legend = {\n` +
+    `  var legend = ` +
     /////////////////// this is the part that varies ///////////////////////////
-    `    "https://abc.com": [` +
-    `       {` +
-    `         querystring: {},` +
-    `         locationValue: "https://somewhere-else.com"` +
-    `       },` +
-    `     ],` +
+    `{\n` +
+    `  "https://abc.com": [\n` +
+    `    {\n ` +
+    `      querystring: {}\n` +
+    `      locationValue: "https://sites.google.com/view/douglas-naphas-org/home"\n` +
+    `    },\n` +
+    `  ],\n` +
+    `}\n` +
     ////////////////////////////////////////////////////////////////////////////
-    `  };\n` +
     `  var request = event.request;\n` +
     `  var response404 = {statusCode: 404, statusDescription: "Not Found"};\n` +
     `  if(!request.headers.host){return response404;}\n` +
@@ -145,7 +107,73 @@ test("stack has the expected CFF 2", () => {
     `}`;
   expect(cffCode).toEqual(expectedFunctionCode);
 });
-
+test("stack has the expected CFF 2", () => {
+  const stack = new Lib.AppStack(app, "MyTestApp", {
+    redirects: [
+      new Lib.Redirect(
+        new URL("https://abc.com"),
+        new URL("https://somewhere-else.com"),
+        RedirectType.FOUND
+      ),
+    ],
+  });
+  const template = Template.fromStack(stack);
+  const distributionConfigCapture = new Capture();
+  template.hasResourceProperties("AWS::CloudFront::Distribution", {
+    DistributionConfig: distributionConfigCapture,
+  });
+  const cffCapture = new Capture();
+  template.hasResourceProperties("AWS::CloudFront::Distribution", {
+    DistributionConfig: Match.objectLike({
+      DefaultCacheBehavior: { FunctionAssociations: [cffCapture] },
+    }),
+  });
+  const cffCode =
+    template.toJSON().Resources[
+      cffCapture.asObject().FunctionARN["Fn::GetAtt"][0]
+    ].Properties.FunctionCode;
+  const expectedFunctionCode =
+    `function handler(event) {\n` +
+    `  var legend = ` +
+    /////////////////// this is the part that varies ///////////////////////////
+    `{\n` +
+    `  "https://abc.com": [\n` +
+    `    {\n ` +
+    `      querystring: {}\n` +
+    `      locationValue: "https://somewhere-else.com/"\n` +
+    `    },\n` +
+    `  ],\n` +
+    `}\n` +
+    ////////////////////////////////////////////////////////////////////////////
+    `  var request = event.request;\n` +
+    `  var response404 = {statusCode: 404, statusDescription: "Not Found"};\n` +
+    `  if(!request.headers.host){return response404;}\n` +
+    `  if(typeof request.headers.host != "string){return response404;}\n` +
+    `  if(!legend[request.headers.host]){return response404;}\n` +
+    `  for (var i = 0; i < legend[request.headers.host].length; i++) {\n` +
+    `    var legendQuerystringEntries = Object.entries(\n` +
+    `      legend[request.headers.host][i].querystring\n` +
+    `  );\n` +
+    `    for (var j = 0; j < legendQuerystringEntries.length; j++) {\n` +
+    `      if(\n` +
+    `        request.querystring[legendQuerystringEntries[j][0]] !=\n` +
+    `        legendQuerystringEntries[j][1]\n` +
+    `      ){return response404;}\n` +
+    `    }\n` +
+    `    return {\n` +
+    `      statusCode: 302,` +
+    `      statusDescription: "Found",` +
+    `      headers: {` +
+    `        location: {` +
+    `          value: legend[request.headers.host][i].locationValue` +
+    `        }` +
+    `      }` +
+    `    }` +
+    `  }` +
+    `  return response404;` +
+    `}`;
+  expect(cffCode).toEqual(expectedFunctionCode);
+});
 test("stack has the expected CFF(s) 3", () => {
   const stack = new Lib.AppStack(app, "MyTestApp", {
     redirects: [
@@ -220,17 +248,57 @@ test("stack has the expected CFF(s) 3", () => {
       cffCapture.asObject().FunctionARN["Fn::GetAtt"][0]
     ].Properties.FunctionCode;
   const expectedFunctionCode =
-    `function handler(event) {` +
-    `var response = {` +
-    `  statusCode: 302,` +
-    `  statusDescription: 'Found',` +
-    `  headers: {` +
-    `    "location": {` +
-    `      "value": "https://somewhere-else.com"` +
+    `function handler(event) {\n` +
+    `  var legend = ` +
+    /////////////////// this is the part that varies ///////////////////////////
+    `{\n` +
+    `  "https://email.fromme.com": [\n` +
+    `    {\n ` +
+    `      querystring: {}\n` +
+    `      locationValue: "https://tome.co/get/your/email/here"\n` +
+    `    },\n` +
+    `  ],\n` +
+    `  "https://fromme.com": [\n` +
+    `    {\n ` +
+    `      querystring: {}\n` +
+    `      locationValue: "https://tome.com/"\n` +
+    `    },\n` +
+    `  ],\n` +
+    `  "https://other-fromme.com": [\n` +
+    `    {\n ` +
+    `      querystring: {}\n` +
+    `      locationValue: "https://tome.com/"\n` +
+    `    },\n` +
+    `  ],\n` +
+    `}\n` +
+    ////////////////////////////////////////////////////////////////////////////
+    `  var request = event.request;\n` +
+    `  var response404 = {statusCode: 404, statusDescription: "Not Found"};\n` +
+    `  if(!request.headers.host){return response404;}\n` +
+    `  if(typeof request.headers.host != "string){return response404;}\n` +
+    `  if(!legend[request.headers.host]){return response404;}\n` +
+    `  for (var i = 0; i < legend[request.headers.host].length; i++) {\n` +
+    `    var legendQuerystringEntries = Object.entries(\n` +
+    `      legend[request.headers.host][i].querystring\n` +
+    `  );\n` +
+    `    for (var j = 0; j < legendQuerystringEntries.length; j++) {\n` +
+    `      if(\n` +
+    `        request.querystring[legendQuerystringEntries[j][0]] !=\n` +
+    `        legendQuerystringEntries[j][1]\n` +
+    `      ){return response404;}\n` +
+    `    }\n` +
+    `    return {\n` +
+    `      statusCode: 302,` +
+    `      statusDescription: "Found",` +
+    `      headers: {` +
+    `        location: {` +
+    `          value: legend[request.headers.host][i].locationValue` +
+    `        }` +
+    `      }` +
     `    }` +
     `  }` +
-    `} ; ` +
-    `return response;}`;
+    `  return response404;` +
+    `}`;
   // should only be asserting about the CFF associated with the default
   // behavior
   expect(cffCode).toEqual(expectedFunctionCode);
