@@ -35,15 +35,15 @@ export const redirects2Legend = (
 ): Legend => {
   const legend: any = {};
   redirects.forEach((redirect) => {
-    if (!legend[redirect.from.origin]) {
-      legend[redirect.from.origin] = [];
+    if (!legend[redirect.from.hostname]) {
+      legend[redirect.from.hostname] = [];
     }
     const querystring: any = {};
     for (const [queryParamName, queryParamValue] of redirect.from
       .searchParams) {
       querystring[queryParamName] = queryParamValue;
     }
-    legend[redirect.from.origin].push({
+    legend[redirect.from.hostname].push({
       querystring,
       locationValue: redirect.to.href,
     });

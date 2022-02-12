@@ -70,7 +70,7 @@ test("stack has the expected CFF 1", () => {
     `  var legend = ` +
     /////////////////// this is the part that varies ///////////////////////////
     `{\n` +
-    `  "https://abc.com": [\n` +
+    `  "abc.com": [\n` +
     `    {\n ` +
     `      querystring: {},\n` +
     `      locationValue: "https://sites.google.com/view/douglas-naphas-org/home"\n` +
@@ -137,7 +137,7 @@ test("stack has the expected CFF 2", () => {
     `  var legend = ` +
     /////////////////// this is the part that varies ///////////////////////////
     `{\n` +
-    `  "https://abc.com": [\n` +
+    `  "abc.com": [\n` +
     `    {\n ` +
     `      querystring: {},\n` +
     `      locationValue: "https://somewhere-else.com/"\n` +
@@ -252,13 +252,13 @@ test("stack has the expected CFF(s) 3", () => {
     `  var legend = ` +
     /////////////////// this is the part that varies ///////////////////////////
     `{\n` +
-    `  "https://email.fromme.com": [\n` +
+    `  "email.fromme.com": [\n` +
     `    {\n ` +
     `      querystring: {},\n` +
     `      locationValue: "https://tome.co/get/your/email/here"\n` +
     `    },\n` +
     `  ],\n` +
-    `  "https://fromme.com": [\n` +
+    `  "fromme.com": [\n` +
     `    {\n ` +
     `      querystring: {},\n` +
     `      locationValue: "https://tome.com/"\n` +
@@ -268,7 +268,7 @@ test("stack has the expected CFF(s) 3", () => {
     `      locationValue: "https://docs.google.com/edit/zzbbaajj"\n` +
     `    },\n` +
     `  ],\n` +
-    `  "https://other-fromme.com": [\n` +
+    `  "other-fromme.com": [\n` +
     `    {\n ` +
     `      querystring: {},\n` +
     `      locationValue: "https://tome.com/"\n` +
