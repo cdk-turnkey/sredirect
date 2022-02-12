@@ -136,17 +136,30 @@ export class AppStack extends Stack {
     distro.node.addDependency(certificate);
     distro.addBehavior("/apply", origin, {});
 
+    const zoneNameFromCertName = (certName: string): string =>
+      certName.replace(/^[*][.]/, "");
+
     console.log(certNames);
     const hostedZones: any = {};
     // const zoneNames
     const zoneNames = Array.from(
       certNames.reduce((acc, curr) => {
-        return acc.add(curr.replace(/^[*][.]/, ""));
+        return acc.add(zoneNameFromCertName(curr));
       }, new Set())
     );
-    console.log(zoneNames)
+    console.log(zoneNames);
+
+    const recordSetNameFromURL = (toValue: URL): string => toValue.hostname;
 
     // const recordSetNames
+    const recordSetNames = Array.from(
+      redirects.reduce(
+        (acc, curr) => acc.add(recordSetNameFromURL(curr.from)),
+        new Set()
+      )
+    );
+    console.log(recordSetNames);
+
     certNames
       .filter((domainName) => !domainName.match(/[*]/))
       .forEach((zoneName, index) => {
