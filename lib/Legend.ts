@@ -21,7 +21,7 @@ export function legend2String(legend: Legend): string {
         st += `"${queryParamName}": "${queryParamValue}", `;
       }
       st +=
-        `}\n` +
+        `},\n` +
         `      locationValue: "${legendPair.locationValue}"\n` +
         `    },\n`;
     }

@@ -72,7 +72,7 @@ test("stack has the expected CFF 1", () => {
     `{\n` +
     `  "https://abc.com": [\n` +
     `    {\n ` +
-    `      querystring: {}\n` +
+    `      querystring: {},\n` +
     `      locationValue: "https://sites.google.com/view/douglas-naphas-org/home"\n` +
     `    },\n` +
     `  ],\n` +
@@ -139,7 +139,7 @@ test("stack has the expected CFF 2", () => {
     `{\n` +
     `  "https://abc.com": [\n` +
     `    {\n ` +
-    `      querystring: {}\n` +
+    `      querystring: {},\n` +
     `      locationValue: "https://somewhere-else.com/"\n` +
     `    },\n` +
     `  ],\n` +
@@ -254,23 +254,23 @@ test("stack has the expected CFF(s) 3", () => {
     `{\n` +
     `  "https://email.fromme.com": [\n` +
     `    {\n ` +
-    `      querystring: {}\n` +
+    `      querystring: {},\n` +
     `      locationValue: "https://tome.co/get/your/email/here"\n` +
     `    },\n` +
     `  ],\n` +
     `  "https://fromme.com": [\n` +
     `    {\n ` +
-    `      querystring: {}\n` +
+    `      querystring: {},\n` +
     `      locationValue: "https://tome.com/"\n` +
     `    },\n` +
     `    {\n ` +
-    `      querystring: {"participant-id": "4499", }\n` +
+    `      querystring: {"participant-id": "4499", },\n` +
     `      locationValue: "https://docs.google.com/edit/zzbbaajj"\n` +
     `    },\n` +
     `  ],\n` +
     `  "https://other-fromme.com": [\n` +
     `    {\n ` +
-    `      querystring: {}\n` +
+    `      querystring: {},\n` +
     `      locationValue: "https://tome.com/"\n` +
     `    },\n` +
     `  ],\n` +
@@ -306,4 +306,6 @@ test("stack has the expected CFF(s) 3", () => {
   // should only be asserting about the CFF associated with the default
   // behavior
   expect(cffCode).toEqual(expectedFunctionCode);
+
+  // assert on the non-root from-paths
 });
