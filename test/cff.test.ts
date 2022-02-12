@@ -1,5 +1,6 @@
 import { URL } from "url";
 import { Redirect } from "../lib";
+import { assertNonEmptyRedirectArray } from "../lib/assertNonEmptyRedirectArray";
 import { RedirectType } from "../lib/RedirectType";
 describe("CFF code for 'stack has the expected CFF(s) 3'", () => {
   describe("path /", () => {
@@ -269,16 +270,6 @@ describe("redirects2Legend", () => {
   ])(
     "$redirects -> $expected",
     ({ redirects, expectedLegend, expectedString }) => {
-      function assertNonEmptyRedirectArray(
-        input: unknown
-      ): asserts input is [Redirect, ...Redirect[]] {
-        if (!Array.isArray(input)) {
-          throw new Error("input is not array");
-        }
-        if (input.length < 1) {
-          throw new Error("input length < 1");
-        }
-      }
       assertNonEmptyRedirectArray(redirects);
       expect(redirects2LegendString(redirects)).toEqual(expectedString);
       expect(redirects2Legend(redirects)).toEqual(expectedLegend);

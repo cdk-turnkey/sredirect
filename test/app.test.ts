@@ -263,6 +263,10 @@ test("stack has the expected CFF(s) 3", () => {
     `      querystring: {}\n` +
     `      locationValue: "https://tome.com/"\n` +
     `    },\n` +
+    `    {\n ` +
+    `      querystring: {"participant-id": "4499", }\n` +
+    `      locationValue: "https://docs.google.com/edit/zzbbaajj"\n` +
+    `    },\n` +
     `  ],\n` +
     `  "https://other-fromme.com": [\n` +
     `    {\n ` +

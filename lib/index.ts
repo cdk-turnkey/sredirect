@@ -9,6 +9,7 @@ import { URL } from "url";
 import { RedirectType } from "./RedirectType";
 import { requiredCerts } from "./requiredCerts";
 import { redirects2LegendString } from "./Legend";
+import { assertNonEmptyRedirectArray } from "./assertNonEmptyRedirectArray";
 
 export class Redirect {
   constructor(from: URL, to: URL, type: RedirectType) {
@@ -68,12 +69,16 @@ export class AppStack extends Stack {
       ...defaultBucketProps,
       versioned: true,
     });
-    const cfFunction = new cloudfront.Function(this, "CFF", {
+    const redirectsFromRootPath = redirects.filter(
+      (redirect) => redirect.from.pathname === "/"
+    );
+    assertNonEmptyRedirectArray(redirectsFromRootPath);
+    const defaultCFF = new cloudfront.Function(this, "CFF", {
       code: cloudfront.FunctionCode.fromInline(
         `function handler(event) {\n` +
           `  var legend = ` +
           /////////////////// this is the part that varies ///////////////////////////
-          redirects2LegendString(redirects) +
+          redirects2LegendString(redirectsFromRootPath) +
           ////////////////////////////////////////////////////////////////////////////
           `  var request = event.request;\n` +
           `  var response404 = {statusCode: 404, statusDescription: "Not Found"};\n` +
@@ -116,7 +121,7 @@ export class AppStack extends Stack {
         cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
         functionAssociations: [
           {
-            function: cfFunction,
+            function: defaultCFF,
             eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
           },
         ],

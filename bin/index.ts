@@ -4,6 +4,7 @@ import { URL } from "url";
 const AWS = require("aws-sdk");
 const crypto = require("crypto");
 import { AppStack, AppStackProps, Redirect } from "../lib";
+import { assertNonEmptyRedirectArray } from "../lib/assertNonEmptyRedirectArray";
 import { RedirectType } from "../lib/RedirectType";
 const stackname = require("@cdk-turnkey/stackname");
 
@@ -103,18 +104,6 @@ const stackname = require("@cdk-turnkey/stackname");
     // names, one distro, and a bunch of rules/behaviors routing based on the
     // domain
     // TODO: export this asserts function
-    const assertNonEmptyRedirectArray: (
-      input: unknown
-    ) => asserts input is [Redirect, ...Redirect[]] = (
-      input: any
-    ): asserts input is [Redirect, ...Redirect[]] => {
-      if (!Array.isArray(input)) {
-        throw new Error("input is not an array");
-      }
-      if (input.length < 1) {
-        throw new Error("input length < 1");
-      }
-    };
     const parsedRedirects = parsed.map(
       (e) => new Redirect(new URL(e.from), new URL(e.to), e.type)
     );
