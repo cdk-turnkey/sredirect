@@ -318,4 +318,12 @@ test("stack has the expected CFF(s) 3", () => {
       CacheBehaviors: cacheBehaviorsCapture,
     }),
   });
+  template.hasResourceProperties("AWS::CloudFront::Distribution", {
+    DistributionConfig: Match.objectLike({
+      CacheBehaviors: Match.arrayWith([
+        Match.objectLike({ PathPattern: "/apply" }),
+      ]),
+    }),
+  });
+  // expect(cacheBehaviorsCapture.asArray().length).toEqual(1);
 });
