@@ -222,7 +222,7 @@ describe("redirects2Legend", () => {
 
     ret += `}\n`;
 
-    return (
+    const oldRet =
       `{\n` +
       `  "https://abc.com": [\n` +
       `    {\n ` +
@@ -244,8 +244,8 @@ describe("redirects2Legend", () => {
       `      locationValue: "https://no-query-string.net"\n` +
       `    },\n` +
       `  ],\n` +
-      `}\n`
-    );
+      `}\n`;
+    return legend2String(redirects2Legend(redirects));
   };
   test.each([
     {
@@ -297,22 +297,22 @@ describe("redirects2Legend", () => {
         `{\n` +
         `  "https://abc.com": [\n` +
         `    {\n ` +
-        `      querystring: {"q": "123"}\n` +
-        `      locationValue: "https://to.com?to=2"\n` +
+        `      querystring: {"q": "123", }\n` +
+        `      locationValue: "https://to.com/?to=2"\n` +
         `    },\n` +
         `    {\n ` +
-        `      querystring: {"q": "123", "r": "stuv"}\n` +
-        `      locationValue: "https://destination.com"\n` +
+        `      querystring: {"q": "123", "r": "stuv", }\n` +
+        `      locationValue: "https://destination.com/"\n` +
         `    },\n` +
         `  ],\n` +
         `  "https://uvw.xyz.com": [\n` +
         `    {\n ` +
-        `      querystring: {"q": "123", "r": "stuv"}\n` +
+        `      querystring: {"q": "123", "r": "stuv", }\n` +
         `      locationValue: "https://target.org/a/path"\n` +
         `    },\n` +
         `    {\n ` +
         `      querystring: {}\n` +
-        `      locationValue: "https://no-query-string.net"\n` +
+        `      locationValue: "https://no-query-string.net/"\n` +
         `    },\n` +
         `  ],\n` +
         `}\n`,
