@@ -85,6 +85,13 @@ export class AppStack extends Stack {
         throw new Error("input length < 1");
       }
     };
+    const assertStringArray: (input: unknown) => asserts input is string[] = (
+      input: any
+    ): asserts input is string[] => {
+      if (!Array.isArray(input)) {
+        throw new Error("input is not an array");
+      }
+    };
     assertNonEmptyStringArray(certNames);
     if (certNames.length > 1) {
       subjectAlternativeNames = certNames.slice(1);
@@ -160,20 +167,22 @@ export class AppStack extends Stack {
     );
     console.log(recordSetNames);
 
-    certNames
-      .filter((domainName) => !domainName.match(/[*]/))
-      .forEach((zoneName, index) => {
-        const hostedZone = new route53.PublicHostedZone(
-          this,
-          `HostedZone${index}`,
-          {
-            zoneName,
-          }
-        );
-        hostedZones[zoneName] = hostedZone;
-      });
-    // console.log(hostedZones)
-    certNames.forEach((domainName, index) => {
+    // make hosted zones
+    assertStringArray(zoneNames);
+    zoneNames.forEach((zoneName, index) => {
+      const hostedZone = new route53.PublicHostedZone(
+        this,
+        `HostedZone${index}`,
+        {
+          zoneName,
+        }
+      );
+      hostedZones[zoneName] = hostedZone;
+    });
+
+    // make A Records
+    assertStringArray(recordSetNames);
+    recordSetNames.forEach((domainName, index) => {
       new route53.ARecord(this, `ARecord${index}`, {
         recordName: domainName,
         zone: hostedZones[domainName.replace(/^[*][.]/, "")],
