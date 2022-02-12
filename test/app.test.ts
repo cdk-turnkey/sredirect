@@ -81,11 +81,12 @@ test("stack has the expected CFF 1", () => {
     `  var request = event.request;\n` +
     `  var response404 = {statusCode: 404, statusDescription: "Not Found"};\n` +
     `  if(!request.headers.host){return response404;}\n` +
-    `  if(typeof request.headers.host != "string"){return response404;}\n` +
-    `  if(!legend[request.headers.host]){return response404;}\n` +
-    `  for (var i = 0; i < legend[request.headers.host].length; i++) {\n` +
+    `  if(!request.headers.host.value){return response404;}\n` +
+    `  if(typeof request.headers.host.value != "string"){return response404;}\n` +
+    `  if(!legend[request.headers.host.value]){return response404;}\n` +
+    `  for (var i = 0; i < legend[request.headers.host.value].length; i++) {\n` +
     `    var legendQuerystringEntries = Object.entries(\n` +
-    `      legend[request.headers.host][i].querystring\n` +
+    `      legend[request.headers.host.value][i].querystring\n` +
     `  );\n` +
     `    for (var j = 0; j < legendQuerystringEntries.length; j++) {\n` +
     `      if(\n` +
@@ -98,7 +99,7 @@ test("stack has the expected CFF 1", () => {
     `      statusDescription: "Found",` +
     `      headers: {` +
     `        location: {` +
-    `          value: legend[request.headers.host][i].locationValue` +
+    `          value: legend[request.headers.host.value][i].locationValue` +
     `        }` +
     `      }` +
     `    }` +
@@ -148,11 +149,12 @@ test("stack has the expected CFF 2", () => {
     `  var request = event.request;\n` +
     `  var response404 = {statusCode: 404, statusDescription: "Not Found"};\n` +
     `  if(!request.headers.host){return response404;}\n` +
-    `  if(typeof request.headers.host != "string"){return response404;}\n` +
-    `  if(!legend[request.headers.host]){return response404;}\n` +
-    `  for (var i = 0; i < legend[request.headers.host].length; i++) {\n` +
+    `  if(!request.headers.host.value){return response404;}\n` +
+    `  if(typeof request.headers.host.value != "string"){return response404;}\n` +
+    `  if(!legend[request.headers.host.value]){return response404;}\n` +
+    `  for (var i = 0; i < legend[request.headers.host.value].length; i++) {\n` +
     `    var legendQuerystringEntries = Object.entries(\n` +
-    `      legend[request.headers.host][i].querystring\n` +
+    `      legend[request.headers.host.value][i].querystring\n` +
     `  );\n` +
     `    for (var j = 0; j < legendQuerystringEntries.length; j++) {\n` +
     `      if(\n` +
@@ -165,7 +167,7 @@ test("stack has the expected CFF 2", () => {
     `      statusDescription: "Found",` +
     `      headers: {` +
     `        location: {` +
-    `          value: legend[request.headers.host][i].locationValue` +
+    `          value: legend[request.headers.host.value][i].locationValue` +
     `        }` +
     `      }` +
     `    }` +
@@ -279,11 +281,12 @@ test("stack has the expected CFF(s) 3", () => {
     `  var request = event.request;\n` +
     `  var response404 = {statusCode: 404, statusDescription: "Not Found"};\n` +
     `  if(!request.headers.host){return response404;}\n` +
-    `  if(typeof request.headers.host != "string"){return response404;}\n` +
-    `  if(!legend[request.headers.host]){return response404;}\n` +
-    `  for (var i = 0; i < legend[request.headers.host].length; i++) {\n` +
+    `  if(!request.headers.host.value){return response404;}\n` +
+    `  if(typeof request.headers.host.value != "string"){return response404;}\n` +
+    `  if(!legend[request.headers.host.value]){return response404;}\n` +
+    `  for (var i = 0; i < legend[request.headers.host.value].length; i++) {\n` +
     `    var legendQuerystringEntries = Object.entries(\n` +
-    `      legend[request.headers.host][i].querystring\n` +
+    `      legend[request.headers.host.value][i].querystring\n` +
     `  );\n` +
     `    for (var j = 0; j < legendQuerystringEntries.length; j++) {\n` +
     `      if(\n` +
@@ -296,7 +299,7 @@ test("stack has the expected CFF(s) 3", () => {
     `      statusDescription: "Found",` +
     `      headers: {` +
     `        location: {` +
-    `          value: legend[request.headers.host][i].locationValue` +
+    `          value: legend[request.headers.host.value][i].locationValue` +
     `        }` +
     `      }` +
     `    }` +
