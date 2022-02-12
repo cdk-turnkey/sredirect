@@ -311,4 +311,11 @@ test("stack has the expected CFF(s) 3", () => {
   expect(cffCode).toEqual(expectedFunctionCode);
 
   // assert on the non-root from-paths
+  // assert that we have CacheBehaviors
+  const cacheBehaviorsCapture = new Capture();
+  template.hasResourceProperties("AWS::CloudFront::Distribution", {
+    DistributionConfig: Match.objectLike({
+      CacheBehaviors: cacheBehaviorsCapture,
+    }),
+  });
 });
