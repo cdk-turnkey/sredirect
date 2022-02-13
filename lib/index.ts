@@ -185,6 +185,9 @@ export class AppStack extends Stack {
     //   return m;
     // }
 
+    console.log("zoneNames:");
+    console.log(zoneNames);
+
     // make hosted zones
     assertStringArray(zoneNames);
     zoneNames.forEach((zoneName, index) => {
