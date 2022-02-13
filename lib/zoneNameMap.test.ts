@@ -23,6 +23,29 @@ describe("zoneNames", () => {
         return m;
       })(),
     },
+    {
+      description: "3",
+      domainNames: [
+        "a.com",
+        "c.b.a.com",
+        "e.d.c.b.a.com",
+        "rst.net",
+        "www.my-domain.com",
+        "my-other-domain.com",
+        "www.my-other-domain.com",
+      ],
+      expected: (() => {
+        const m = new Map<string, string>();
+        m.set("a.com", "a.com");
+        m.set("c.b.a.com", "a.com");
+        m.set("e.d.c.b.a.com", "a.com");
+        m.set("rst.net", "rst.net");
+        m.set("www.my-domain.com", "www.my-domain.com");
+        m.set("my-other-domain.com", "my-other-domain.com");
+        m.set("www.my-other-domain.com", "my-other-domain.com");
+        return m;
+      })(),
+    },
   ])("$description", ({ domainNames, expected }) => {
     expect(zoneNameMap(domainNames)).toEqual(expected);
   });
