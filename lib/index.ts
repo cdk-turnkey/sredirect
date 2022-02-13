@@ -146,7 +146,12 @@ export class AppStack extends Stack {
     const zoneNameFromCertName = (certName: string): string =>
       certName.replace(/^[*][.]/, "");
 
+    console.log("from-value hostnames:");
+    console.log(redirects.map((redirect) => redirect.from.hostname));
+
+    console.log("certNames:");
     console.log(certNames);
+
     const hostedZones: any = {};
     // const zoneNames
     const zoneNames = Array.from(
@@ -154,6 +159,7 @@ export class AppStack extends Stack {
         return acc.add(zoneNameFromCertName(curr));
       }, new Set())
     );
+    console.log("zoneNames:");
     console.log(zoneNames);
 
     const recordSetNameFromURL = (toValue: URL): string => toValue.hostname;
@@ -165,6 +171,7 @@ export class AppStack extends Stack {
         new Set()
       )
     );
+    console.log("recordSetNames:");
     console.log(recordSetNames);
 
     // make hosted zones
@@ -182,10 +189,10 @@ export class AppStack extends Stack {
 
     // make A Records
     assertStringArray(recordSetNames);
-    recordSetNames.forEach((domainName, index) => {
+    recordSetNames.forEach((recordSetName, index) => {
       new route53.ARecord(this, `ARecord${index}`, {
-        recordName: domainName,
-        zone: hostedZones[domainName.replace(/^[*][.]/, "")],
+        recordName: recordSetName,
+        zone: hostedZones[recordSetName.replace(/^[*][.]/, "")],
         target: route53.RecordTarget.fromAlias(
           new targets.CloudFrontTarget(distro)
         ),

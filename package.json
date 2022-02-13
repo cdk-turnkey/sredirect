@@ -12,7 +12,8 @@
     "test": "jest",
     "synth": "npx cdk synth --no-staging",
     "diff": "npx cdk diff",
-    "init-submods": "git submodule update --init --recursive"
+    "init-submods": "git submodule update --init --recursive",
+    "clear_jest": "jest --clear-cache"
   },
   "devDependencies": {
     "@types/jest": "^27.0.2",
