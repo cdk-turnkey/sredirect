@@ -11,6 +11,10 @@ import { requiredCerts } from "./requiredCerts";
 import { redirects2LegendString } from "./Legend";
 import { assertNonEmptyRedirectArray } from "./assertNonEmptyRedirectArray";
 import { S3Origin } from "aws-cdk-lib/aws-cloudfront-origins";
+import { zoneNames as getZoneNames } from "./zoneNames";
+import { isSubdomain } from "./isSubdomain";
+import { zoneNameMap as getZoneNameMap } from "./zoneNameMap";
+import { assert } from "console";
 
 export class Redirect {
   constructor(from: URL, to: URL, type: RedirectType) {
@@ -153,14 +157,6 @@ export class AppStack extends Stack {
     console.log(certNames);
 
     const hostedZones: any = {};
-    // const zoneNames
-    const zoneNames = Array.from(
-      certNames.reduce((acc, curr) => {
-        return acc.add(zoneNameFromCertName(curr));
-      }, new Set())
-    );
-    console.log("zoneNames:");
-    console.log(zoneNames);
 
     const recordSetNameFromURL = (toValue: URL): string => toValue.hostname;
 
@@ -173,6 +169,21 @@ export class AppStack extends Stack {
     );
     console.log("recordSetNames:");
     console.log(recordSetNames);
+
+    const zoneNames = getZoneNames(redirects.map((redirect) => redirect.from));
+    // const zoneNameMap = (recordSetNames: string[]): Map<string, string> => {
+    //   let m = new Map<string, string>();
+    //   const s: Set<string> = new Set();
+    //   recordSetNames.reduce((acc, curr) => {
+    //     for (const e of s) {
+    //       if(isSubdomain(curr, new URL(`https://${e}`))) { return acc}
+    //     }
+    //   }
+    //   return acc.add(curr)
+    //   )
+
+    //   return m;
+    // }
 
     // make hosted zones
     assertStringArray(zoneNames);
@@ -189,10 +200,22 @@ export class AppStack extends Stack {
 
     // make A Records
     assertStringArray(recordSetNames);
+    const zoneNameMap = getZoneNameMap(recordSetNames);
     recordSetNames.forEach((recordSetName, index) => {
+      const zoneName = zoneNameMap.get(recordSetName);
+      function assertString(input: unknown): asserts input is string {
+        if (typeof input != "string") {
+          throw new Error("zoneName not a string: " + zoneName);
+        }
+      }
+      assert(
+        zoneName,
+        "unable to find hosted zone for record set name" + recordSetName
+      );
+      assertString(zoneName);
       new route53.ARecord(this, `ARecord${index}`, {
         recordName: recordSetName,
-        zone: hostedZones[recordSetName.replace(/^[*][.]/, "")],
+        zone: hostedZones[zoneName],
         target: route53.RecordTarget.fromAlias(
           new targets.CloudFrontTarget(distro)
         ),
