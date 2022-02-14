@@ -1,4 +1,11 @@
-import { App, Stack, StackProps, RemovalPolicy, CfnOutput } from "aws-cdk-lib";
+import {
+  App,
+  Stack,
+  StackProps,
+  RemovalPolicy,
+  CfnOutput,
+  CfnResource,
+} from "aws-cdk-lib";
 import { aws_s3 as s3 } from "aws-cdk-lib";
 import { aws_cloudfront as cloudfront } from "aws-cdk-lib";
 import { aws_cloudfront_origins as origins } from "aws-cdk-lib";
@@ -171,6 +178,10 @@ export class AppStack extends Stack {
         }
       );
       hostedZones[zoneName] = hostedZone;
+      const cfnHostedZone = hostedZone.node.findChild(
+        "Resource"
+      ) as CfnResource;
+      cfnHostedZone.applyRemovalPolicy(RemovalPolicy.RETAIN);
     });
 
     // make A Records
