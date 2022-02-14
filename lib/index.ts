@@ -80,7 +80,10 @@ export class AppStack extends Stack {
     const redirects: [Redirect, ...Redirect[]] = props.redirects;
     redirects.forEach((redirect) => {
       const parsedDomain = psl.parse(redirect.from.hostname);
-      if (parsedDomain.subdomain.split(".").length > 1) {
+      if (
+        parsedDomain.subdomain &&
+        parsedDomain.subdomain.split(".").length > 1
+      ) {
         throw new Error(
           `multi-label subdomains are currently not supported, ` +
             `redirect.from.hostname that failed was ${redirect.from.hostname}`
