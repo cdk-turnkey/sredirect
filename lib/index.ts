@@ -165,7 +165,34 @@ export class AppStack extends Stack {
       certificate,
     });
     distro.node.addDependency(certificate);
-    distro.addBehavior("/apply", origin, {});
+
+    const pathSet = new Set(
+      redirects
+        .map((redirect) => redirect.from.pathname)
+        .filter((fromPath) => fromPath != "/")
+    );
+    for (const fromPath of pathSet) {
+      // figure out the cff code
+      const redirectsFromThisPath = redirects.filter(
+        (redirect) => redirect.from.pathname == fromPath
+      );
+      assertNonEmptyRedirectArray(redirectsFromThisPath);
+      const cff = new cloudfront.Function(this, `CFF${fromPath}`, {
+        code: cloudfront.FunctionCode.fromInline(
+          cffCode(redirects2LegendString(redirectsFromThisPath))
+        ),
+      });
+      distro.addBehavior(fromPath, origin, {
+        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+        functionAssociations: [
+          {
+            function: cff,
+            eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
+          },
+        ],
+      });
+    }
 
     const hostedZones: any = {};
 
