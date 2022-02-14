@@ -5,4 +5,7 @@ test("use psl", () => {
   console.log(parsed.sld); // 'foo'
   console.log(parsed.domain); // 'foo.com'
   console.log(parsed.subdomain); // 'a.b.c.d'
+  console.log(psl.get('ghi.co.uk')) // 'ghi.co.uk'
+  console.log(psl.get('apply.ghi.co.uk')) // 'ghi.co.uk'
+  // this could work to get the cert domain
 });

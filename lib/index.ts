@@ -22,6 +22,7 @@ import { zoneNames as getZoneNames } from "./zoneNames";
 import { isSubdomain } from "./isSubdomain";
 import { zoneNameMap as getZoneNameMap } from "./zoneNameMap";
 import { assert } from "console";
+const psl = require("psl");
 
 export class Redirect {
   constructor(from: URL, to: URL, type: RedirectType) {
@@ -77,6 +78,15 @@ export class AppStack extends Stack {
   constructor(scope: App, id: string, props: AppStackProps) {
     super(scope, id, props);
     const redirects: [Redirect, ...Redirect[]] = props.redirects;
+    redirects.forEach((redirect) => {
+      const parsedDomain = psl.parse(redirect.from.hostname);
+      if (parsedDomain.subdomain.split(".").length > 1) {
+        throw new Error(
+          `multi-label subdomains are currently not supported, ` +
+            `redirect.from.hostname that failed was ${redirect.from.hostname}`
+        );
+      }
+    });
 
     let subjectAlternativeNames;
 

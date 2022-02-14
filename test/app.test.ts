@@ -48,7 +48,7 @@ beforeEach(() => {
 afterAll(() => {
   process.env = { ...OLD_ENV };
 });
-test.skip("can instantiate app stack", () => {
+test("can instantiate app stack", () => {
   const stack = new Lib.AppStack(app, "MyTestApp", {
     redirects: [
       new Lib.Redirect(
@@ -59,7 +59,7 @@ test.skip("can instantiate app stack", () => {
     ],
   });
 });
-test.skip("app stack contains a Hosted Zone", () => {
+test("app stack contains a Hosted Zone", () => {
   const stack = new Lib.AppStack(app, "MyTestApp", {
     redirects: [
       new Lib.Redirect(
@@ -72,7 +72,7 @@ test.skip("app stack contains a Hosted Zone", () => {
   const template = Template.fromStack(stack);
   template.resourceCountIs("AWS::Route53::HostedZone", 1);
 });
-test.skip("stack has the expected CFF 1", () => {
+test("stack has the expected CFF 1", () => {
   const stack = new Lib.AppStack(app, "MyTestApp", {
     redirects: [
       new Lib.Redirect(
@@ -109,7 +109,7 @@ test.skip("stack has the expected CFF 1", () => {
   );
   expect(cffCode).toEqual(expectedFunctionCode);
 });
-test.skip("stack has the expected CFF 2", () => {
+test("stack has the expected CFF 2", () => {
   const stack = new Lib.AppStack(app, "MyTestApp", {
     redirects: [
       new Lib.Redirect(
@@ -304,7 +304,7 @@ test("subdomain only", () => {
   // behavior
   expect(cffCode).toEqual(expectedFunctionCode);
 });
-test.skip("stack has the expected CFF(s) 5, multiple paths", () => {
+test("stack has the expected CFF(s) 5, multiple paths", () => {
   const stack = new Lib.AppStack(app, "MyTestApp", {
     redirects: [
       new Lib.Redirect(
@@ -389,3 +389,23 @@ test.skip("stack has the expected CFF(s) 5, multiple paths", () => {
 });
 // empty query param https://abc.com?q
 // query params appear in different order in legend and request
+
+// make sure we're making the right DNS objects
+describe("DNS objects", () => {
+  test("makes the right hosted zones", () => {
+
+  })
+})
+test("reject multi-label subdomains", () => {
+  expect(() => {
+    const stack = new Lib.AppStack(app, "MyTestApp", {
+      redirects: [
+        new Lib.Redirect(
+          new URL("https://www.xyz.abc.com"),
+          new URL("https://example.com"),
+          RedirectType.FOUND
+        ),
+      ],
+    });
+  }).toThrow()
+})
