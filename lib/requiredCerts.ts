@@ -1,12 +1,16 @@
 import { assert } from "console";
 import { Redirect } from "./index";
 import { RedirectType } from "./RedirectType";
+const psl = require("psl");
 export function requiredCerts(redirects: [Redirect, ...Redirect[]]) {
   const slds = redirects.reduce((prev, curr) => {
-    const SECOND_LEVEL_DOMAIN_NAME_POSITION = -2;
-    const names = curr.from.host.split(".").filter((name) => name !== "");
-    const sld = names.slice(SECOND_LEVEL_DOMAIN_NAME_POSITION).join(".");
-    if (names.length > 2) {
+    const parsedFromDomain = psl.parse(curr.from.hostname);
+    const sld = psl.get(curr.from.hostname);
+    if (
+      parsedFromDomain.subdomain &&
+      parsedFromDomain.subdomain.split &&
+      parsedFromDomain.subdomain.split(".").length > 0
+    ) {
       return prev.add(`*.${sld}`);
     }
     return prev.add(sld);

@@ -204,6 +204,16 @@ describe("requiredCerts", () => {
         "*.zzz.com",
       ],
     },
+    {
+      redirects: [
+        new Redirect(
+          new URL("https://www.newspaper.co.uk"),
+          new URL("https://elsewhere.com"),
+          RedirectType.FOUND
+        ),
+      ],
+      expected: ["*.newspaper.co.uk"],
+    },
   ])("requiredCerts($redirects) -> $expected", ({ redirects, expected }) => {
     const assertNonEmptyRedirectArray: (
       input: unknown
