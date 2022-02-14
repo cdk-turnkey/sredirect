@@ -392,10 +392,8 @@ test("stack has the expected CFF(s) 5, multiple paths", () => {
 
 // make sure we're making the right DNS objects
 describe("DNS objects", () => {
-  test("makes the right hosted zones", () => {
-
-  })
-})
+  test("makes the right hosted zones", () => {});
+});
 test("reject multi-label subdomains", () => {
   expect(() => {
     const stack = new Lib.AppStack(app, "MyTestApp", {
@@ -407,5 +405,18 @@ test("reject multi-label subdomains", () => {
         ),
       ],
     });
-  }).toThrow()
-})
+  }).toThrow();
+});
+test("accept multi-label suffixes from the public suffix list", () => {
+  expect(() => {
+    const stack = new Lib.AppStack(app, "MyTestApp", {
+      redirects: [
+        new Lib.Redirect(
+          new URL("https://www.abc.co.uk"),
+          new URL("https://4-names-ok-since-co-dot-uk-is-on-the-psl.com"),
+          RedirectType.FOUND
+        ),
+      ],
+    });
+  }).not.toThrow();
+});
