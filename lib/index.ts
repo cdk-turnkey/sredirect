@@ -147,46 +147,18 @@ export class AppStack extends Stack {
     distro.node.addDependency(certificate);
     distro.addBehavior("/apply", origin, {});
 
-    const zoneNameFromCertName = (certName: string): string =>
-      certName.replace(/^[*][.]/, "");
-
-    console.log("from-value hostnames:");
-    console.log(redirects.map((redirect) => redirect.from.hostname));
-
-    console.log("certNames:");
-    console.log(certNames);
-
     const hostedZones: any = {};
 
     const recordSetNameFromURL = (toValue: URL): string => toValue.hostname;
 
-    // const recordSetNames
     const recordSetNames = Array.from(
       redirects.reduce(
         (acc, curr) => acc.add(recordSetNameFromURL(curr.from)),
         new Set()
       )
     );
-    console.log("recordSetNames:");
-    console.log(recordSetNames);
 
     const zoneNames = getZoneNames(redirects.map((redirect) => redirect.from));
-    // const zoneNameMap = (recordSetNames: string[]): Map<string, string> => {
-    //   let m = new Map<string, string>();
-    //   const s: Set<string> = new Set();
-    //   recordSetNames.reduce((acc, curr) => {
-    //     for (const e of s) {
-    //       if(isSubdomain(curr, new URL(`https://${e}`))) { return acc}
-    //     }
-    //   }
-    //   return acc.add(curr)
-    //   )
-
-    //   return m;
-    // }
-
-    console.log("zoneNames:");
-    console.log(zoneNames);
 
     // make hosted zones
     assertStringArray(zoneNames);

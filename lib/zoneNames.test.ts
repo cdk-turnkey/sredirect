@@ -17,6 +17,14 @@ describe("zoneNames", () => {
       ],
       expected: ["a.com"],
     },
+    {
+      description: "subdomain comes before parent domain in the list",
+      urls: [
+        new URL("https://test-302.douglas-naphas.org"),
+        new URL("https://douglas-naphas.org"),
+      ],
+      expected: ["douglas-naphas.org"],
+    },
   ])("$description", ({ urls, expected }) => {
     expect(zoneNames(urls)).toEqual(expected);
   });

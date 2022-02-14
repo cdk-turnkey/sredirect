@@ -46,6 +46,17 @@ describe("zoneNames", () => {
         return m;
       })(),
     },
+    {
+      description: "4: subdomain listed before parent domain",
+      domainNames: ["e.d.c.b.a.com", "a.com", "c.b.a.com", ],
+      expected: (() => {
+        const m = new Map<string, string>();
+        m.set("a.com", "a.com");
+        m.set("c.b.a.com", "a.com");
+        m.set("e.d.c.b.a.com", "a.com");
+        return m;
+      })(),
+    },
   ])("$description", ({ domainNames, expected }) => {
     expect(zoneNameMap(domainNames)).toEqual(expected);
   });
