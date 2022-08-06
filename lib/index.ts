@@ -25,10 +25,10 @@ import { assert } from "console";
 const psl = require("psl");
 
 export class Redirect {
-  constructor(from: URL, to: URL, type: RedirectType) {
+  constructor(from: URL, to: URL, type?: RedirectType) {
     this.from = from;
     this.to = to;
-    this.type = type;
+    this.type = type || RedirectType.FOUND;
   }
   from: URL;
   to: URL;

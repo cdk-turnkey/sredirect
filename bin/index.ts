@@ -65,7 +65,7 @@ const stackname = require("@cdk-turnkey/stackname");
   configParams.forEach((c) => {
     c.ssmParamValue = ssmParameterData[c.ssmParamName()];
   });
-  const appProps: any = {};
+  const appProps: any = {redirects: [new Redirect(new URL('https://www.example.com/sredirect'), new URL('https://github.com/cdk-turnkey/sredirect'))]};
   configParams.forEach((c) => {
     appProps[c.appParamName] = c.ssmParamValue;
   });
