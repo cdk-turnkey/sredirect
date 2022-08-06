@@ -70,6 +70,8 @@ const stackname = require("@cdk-turnkey/stackname");
     appProps[c.appParamName] = c.ssmParamValue;
   });
   // Param validation
+  console.log(appProps);
+  console.log(appProps);
   const redirects: [Redirect, ...Redirect[]] = ((
     r
   ): [Redirect, ...Redirect[]] => {
